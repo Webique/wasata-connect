@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Languages, Menu, X } from 'lucide-react';
@@ -8,6 +9,7 @@ import { useState } from 'react';
 export const Navbar = () => {
   const { t } = useTranslation();
   const { language, toggleLanguage } = useLanguage();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -20,9 +22,11 @@ export const Navbar = () => {
             className="flex items-center gap-3 group"
             aria-label={language === 'ar' ? 'وساطة - الصفحة الرئيسية' : 'Wasata - Home'}
           >
-            <div className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent transition-transform group-hover:scale-105">
-              {language === 'ar' ? 'وساطة' : 'Wasata'}
-            </div>
+            <img 
+              src="/images/logo.png" 
+              alt={language === 'ar' ? 'وساطة' : 'Wasata'}
+              className="h-12 w-auto transition-transform group-hover:scale-105"
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -46,16 +50,36 @@ export const Navbar = () => {
 
           {/* Auth & Language Toggle */}
           <div className="hidden md:flex items-center gap-2">
-            <Link to="/login">
+            {user ? (
+              <>
+                <Link to={user.role === 'user' ? '/dashboard/user' : user.role === 'company' ? '/dashboard/company' : '/admin/dashboard'}>
+                  <Button variant="ghost" size="lg" className="text-base h-12">
+                    {t('dashboard')}
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={logout}
+                  className="text-base h-12 min-w-[120px]"
+                >
+                  {t('logout')}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link to="/login/user">
               <Button variant="outline" size="lg" className="text-base h-12 min-w-[120px]">
                 {t('login')}
               </Button>
             </Link>
-            <Link to="/register">
+                <Link to="/register/user">
               <Button variant="default" size="lg" className="text-base h-12 min-w-[120px] bg-primary hover:bg-primary/90">
                 {t('register')}
               </Button>
             </Link>
+              </>
+            )}
             <Button
               variant="ghost"
               size="lg"
@@ -100,16 +124,39 @@ export const Navbar = () => {
                 </Button>
               </Link>
               <div className="h-px bg-border my-2" />
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+              {user ? (
+                <>
+                  <Link to={user.role === 'user' ? '/dashboard/user' : user.role === 'company' ? '/dashboard/company' : '/admin/dashboard'} onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" size="lg" className="w-full justify-start text-base h-12">
+                      {t('dashboard')}
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-base h-12"
+                  >
+                    {t('logout')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login/user" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="outline" size="lg" className="w-full text-base h-12">
                   {t('login')}
                 </Button>
               </Link>
-              <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/register/user" onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="default" size="lg" className="w-full text-base h-12 bg-primary hover:bg-primary/90">
                   {t('register')}
                 </Button>
               </Link>
+                </>
+              )}
               <Button
                 variant="ghost"
                 size="lg"

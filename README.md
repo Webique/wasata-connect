@@ -1,73 +1,175 @@
-# Welcome to your Lovable project
+# Wasata Connect | وساطة
 
-## Project info
+A full-stack bilingual (Arabic/English) accessible job platform connecting people with disabilities to inclusive employment opportunities.
 
-**URL**: https://lovable.dev/projects/e3140e85-856b-4fdf-8b88-02000ecf40b1
+## 🚀 Features
 
-## How can I edit this code?
+- **Job Seeker Dashboard**: Browse jobs, apply with CV upload, track applications
+- **Company Dashboard**: Post jobs, manage applicants (after admin approval)
+- **Admin Panel**: Approve/reject companies, manage users, jobs, and applications
+- **Bilingual Support**: Full RTL/LTR support for Arabic and English
+- **Accessibility**: Designed with accessibility best practices
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+### Frontend
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui components
+- React Router
+- i18next for translations
+- React Query
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e3140e85-856b-4fdf-8b88-02000ecf40b1) and start prompting.
+### Backend
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT Authentication
+- Multer for file uploads
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📋 Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+ and npm
+- MongoDB (local or MongoDB Atlas)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🏃 Quick Start
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 1. Install Frontend Dependencies
 
-Follow these steps:
+```bash
+npm install
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 2. Setup Backend
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+cd server
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 3. Configure Environment Variables
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Create `server/.env`:
+
+```env
+MONGODB_URI=mongodb://localhost:27017/wasata-connect
+JWT_SECRET=your-super-secret-jwt-key-change-this
+CORS_ORIGIN=http://localhost:5173
+PORT=5000
+UPLOAD_DIR=./uploads
+```
+
+### 4. Seed Database (Optional)
+
+```bash
+cd server
+npm run seed
+```
+
+This creates:
+- Admin: `admin@wasata.com` / `admin123`
+- Test users and companies
+- Sample jobs and applications
+
+### 5. Start Development Servers
+
+**Terminal 1 - Backend:**
+```bash
+cd server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**Terminal 2 - Frontend:**
+```bash
+npm run dev
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:5000
 
-**Use GitHub Codespaces**
+## 📁 Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+wasata-connect/
+├── src/                    # Frontend React app
+│   ├── components/         # Reusable components
+│   ├── contexts/          # React contexts (Auth, Language)
+│   ├── pages/             # Page components
+│   │   ├── auth/          # Auth pages
+│   │   └── dashboard/     # Dashboard pages
+│   ├── lib/               # Utilities & API client
+│   └── i18n/              # Translations
+├── server/                # Backend Express app
+│   ├── models/            # Mongoose models
+│   ├── routes/            # API routes
+│   ├── middleware/        # Auth middleware
+│   └── scripts/           # Seed script
+└── public/                # Static assets
+```
 
-## What technologies are used for this project?
+## 🔐 User Roles
 
-This project is built with:
+### Job Seeker (User)
+- Register with disability type
+- Browse and search jobs
+- Apply to jobs with CV upload
+- View application status
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Company
+- Register with commercial registration documents
+- Wait for admin approval
+- Post jobs (after approval)
+- View and manage applicants
 
-## How can I deploy this project?
+### Admin
+- Approve/reject company registrations
+- Manage users, jobs, and applications
+- View audit logs
 
-Simply open [Lovable](https://lovable.dev/projects/e3140e85-856b-4fdf-8b88-02000ecf40b1) and click on Share -> Publish.
+## 🌐 API Configuration
 
-## Can I connect a custom domain to my Lovable project?
+The frontend API client is configured in `src/config.ts`. For production:
 
-Yes, you can!
+1. Set `VITE_API_BASE_URL` in Netlify environment variables
+2. Update `CORS_ORIGIN` in backend `.env` to match your frontend URL
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📦 Deployment
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Frontend (Netlify)
+1. Build: `npm run build`
+2. Deploy `dist/` folder
+3. Set `VITE_API_BASE_URL` environment variable
+
+### Backend (Render)
+1. Connect GitHub repository
+2. Set environment variables
+3. Build command: `cd server && npm install`
+4. Start command: `cd server && npm start`
+
+### Database (MongoDB Atlas)
+1. Create MongoDB Atlas cluster
+2. Get connection string
+3. Update `MONGODB_URI` in backend `.env`
+
+## 🎨 Design System
+
+- **Gold**: #A17322
+- **Royal Blue**: #3373B8
+- **Off-White**: #F7F7F7
+- **Typography**: Cairo (Arabic), Inter (English)
+- **Spacing**: Uses `gap` for RTL-friendly layouts
+
+## 📝 Notes
+
+- File uploads are currently stored locally. For production, integrate with S3/Cloudinary.
+- The seed script can be run multiple times (clears existing data).
+- All forms use proper labels and accessibility attributes.
+- RTL support is handled via `dir="rtl"` and logical CSS properties.
+
+## 🤝 Contributing
+
+This project follows accessibility best practices and uses gap-based layouts for RTL compatibility.
+
+## 📄 License
+
+All rights reserved - Wasata Connect
