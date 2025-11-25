@@ -65,8 +65,8 @@ export default function CompanyLogin() {
           <Card className="border-2 shadow-2xl">
             <CardHeader className="flex flex-col gap-6 pb-8">
               <div className="flex items-center justify-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-lg">
-                  <Building2 className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center shadow-lg border-2 border-secondary/20">
+                  <Building2 className="h-8 w-8 text-secondary" />
                 </div>
               </div>
               <div className="text-center flex flex-col gap-2">

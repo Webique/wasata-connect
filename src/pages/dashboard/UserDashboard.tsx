@@ -118,8 +118,8 @@ export default function UserDashboard() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg">
-                  <User className="h-7 w-7 text-white" />
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shadow-lg border-2 border-primary/20">
+                  <User className="h-7 w-7 text-primary" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <h1 className="text-3xl font-bold">{t('dashboard')}</h1>

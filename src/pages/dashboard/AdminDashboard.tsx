@@ -217,8 +217,8 @@ export default function AdminDashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-hero flex items-center justify-center">
-                <Shield className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                <Shield className="h-6 w-6 text-primary" />
               </div>
               <div className="flex flex-col gap-1">
                 <h1 className="text-2xl font-bold">{t('adminDashboard')}</h1>

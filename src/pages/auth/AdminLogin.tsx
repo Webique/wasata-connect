@@ -50,8 +50,8 @@ export default function AdminLogin() {
         <Card className="border-2 shadow-2xl">
           <CardHeader className="flex flex-col gap-6 pb-8">
             <div className="flex items-center justify-center">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-lg">
-                <Shield className="h-8 w-8 text-white" />
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center shadow-lg border-2 border-primary/20">
+                <Shield className="h-8 w-8 text-primary" />
               </div>
             </div>
             <div className="text-center flex flex-col gap-2">
