@@ -286,7 +286,7 @@ export default function CompanyDashboard() {
                     </div>
                     <Dialog open={jobDialogOpen} onOpenChange={setJobDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button size="lg" className="bg-gradient-hero hover:opacity-90 shadow-lg">
+                        <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
                           <Plus className="h-5 w-5" /> {t('addNewJob')}
                         </Button>
                       </DialogTrigger>
@@ -355,7 +355,7 @@ export default function CompanyDashboard() {
                               {t('healthInsurance')}
                             </Label>
                           </div>
-                          <Button onClick={handleCreateJob} size="lg" className="bg-gradient-hero hover:opacity-90">
+                          <Button onClick={handleCreateJob} size="lg" className="bg-primary hover:bg-primary/90">
                             {t('save')}
                           </Button>
                         </div>

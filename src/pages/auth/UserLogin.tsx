@@ -142,7 +142,7 @@ export default function UserLogin() {
                 <Button 
                   type="submit" 
                   disabled={loading} 
-                  className="w-full h-12 text-base font-semibold bg-gradient-hero hover:opacity-90 shadow-lg"
+                  className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">

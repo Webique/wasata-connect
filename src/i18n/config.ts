@@ -228,6 +228,9 @@ const resources = {
       commaSeparated: "مفصولة بفواصل",
       createFirstJob: "أنشئ أول وظيفة لك",
       jobCreatedSuccess: "تم إنشاء الوظيفة بنجاح",
+      pendingApplications: "الطلبات قيد الانتظار",
+      shortlistedApplications: "الطلبات المختارة",
+      totalApplicants: "إجمالي المتقدمين",
     }
   },
   en: {
@@ -456,6 +459,9 @@ const resources = {
       commaSeparated: "comma-separated",
       createFirstJob: "Create your first job",
       jobCreatedSuccess: "Job created successfully",
+      pendingApplications: "Pending Applications",
+      shortlistedApplications: "Shortlisted Applications",
+      totalApplicants: "Total Applicants",
     }
   }
 };

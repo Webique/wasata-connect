@@ -259,7 +259,7 @@ export default function UserDashboard() {
                         </div>
                         <Button
                           onClick={() => navigate(`/jobs/${job._id}`)}
-                          className="w-full mt-auto bg-gradient-hero hover:opacity-90"
+                          className="w-full mt-auto bg-primary hover:bg-primary/90"
                         >
                           {t('viewDetails')}
                           <ArrowRight className="h-4 w-4" />
