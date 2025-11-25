@@ -207,6 +207,27 @@ const resources = {
       toLoginSelection: "لصفحة تسجيل الدخول",
       toRegisterSelection: "لصفحة التسجيل",
       useEmailInstead: "استخدام البريد الإلكتروني بدلاً من الهاتف",
+      
+      // Dashboard Stats
+      availableJobs: "وظائف متاحة",
+      totalSubmitted: "إجمالي المقدمة",
+      underReview: "قيد المراجعة",
+      selected: "مختارة",
+      searchJobs: "ابحث عن وظائف...",
+      month: "شهر",
+      company: "شركة",
+      tryDifferentSearch: "جرب بحثاً مختلفاً",
+      appliedOn: "تم التقديم في",
+      viewJob: "عرض الوظيفة",
+      startApplying: "ابدأ التقديم على الوظائف",
+      browseJobs: "تصفح الوظائف",
+      currentlyActive: "نشطة حالياً",
+      allApplications: "جميع الطلبات",
+      verified: "موثق",
+      fillJobDetails: "املأ تفاصيل الوظيفة",
+      commaSeparated: "مفصولة بفواصل",
+      createFirstJob: "أنشئ أول وظيفة لك",
+      jobCreatedSuccess: "تم إنشاء الوظيفة بنجاح",
     }
   },
   en: {
@@ -414,6 +435,27 @@ const resources = {
       toLoginSelection: "to Login Selection",
       toRegisterSelection: "to Register Selection",
       useEmailInstead: "Use Email instead of Phone",
+      
+      // Dashboard Stats
+      availableJobs: "Available Jobs",
+      totalSubmitted: "Total Submitted",
+      underReview: "Under Review",
+      selected: "Selected",
+      searchJobs: "Search for jobs...",
+      month: "month",
+      company: "Company",
+      tryDifferentSearch: "Try a different search",
+      appliedOn: "Applied on",
+      viewJob: "View Job",
+      startApplying: "Start applying to jobs",
+      browseJobs: "Browse Jobs",
+      currentlyActive: "Currently Active",
+      allApplications: "All Applications",
+      verified: "Verified",
+      fillJobDetails: "Fill in job details",
+      commaSeparated: "comma-separated",
+      createFirstJob: "Create your first job",
+      jobCreatedSuccess: "Job created successfully",
     }
   }
 };

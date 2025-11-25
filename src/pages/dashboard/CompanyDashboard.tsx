@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 import { Navbar } from '@/components/Navbar';
@@ -14,11 +15,31 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Briefcase, Plus, Users, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { 
+  Briefcase, 
+  Plus, 
+  Users, 
+  AlertCircle, 
+  CheckCircle, 
+  XCircle,
+  LogOut,
+  Building2,
+  TrendingUp,
+  FileText,
+  DollarSign,
+  Clock,
+  Shield,
+  Trash2,
+  Download,
+  Eye,
+  ArrowRight
+} from 'lucide-react';
 
 export default function CompanyDashboard() {
   const { t } = useTranslation();
+  const { dir } = useLanguage();
   const { user, company, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -86,7 +107,7 @@ export default function CompanyDashboard() {
       });
       toast({
         title: t('save'),
-        description: 'Job created successfully',
+        description: t('jobCreatedSuccess'),
       });
       setJobDialogOpen(false);
       setFormData({
@@ -108,12 +129,12 @@ export default function CompanyDashboard() {
   };
 
   const handleDeleteJob = async (jobId: string) => {
-    if (!confirm('Are you sure you want to delete this job?')) return;
+    if (!confirm(t('confirmDelete'))) return;
     try {
       await api.deleteJob(jobId);
       toast({
         title: t('delete'),
-        description: 'Job deleted successfully',
+        description: t('deleteSuccess'),
       });
       loadJobs();
     } catch (error: any) {
@@ -127,12 +148,24 @@ export default function CompanyDashboard() {
 
   const getStatusBadge = (status: string) => {
     if (status === 'approved') {
-      return <Badge className="bg-green-500"><CheckCircle className="h-3 w-3" /> {t('approved')}</Badge>;
+      return (
+        <Badge className="bg-green-500 flex items-center gap-2">
+          <CheckCircle className="h-3 w-3" /> {t('approved')}
+        </Badge>
+      );
     }
     if (status === 'rejected') {
-      return <Badge variant="destructive"><XCircle className="h-3 w-3" /> {t('rejected')}</Badge>;
+      return (
+        <Badge variant="destructive" className="flex items-center gap-2">
+          <XCircle className="h-3 w-3" /> {t('rejected')}
+        </Badge>
+      );
     }
-    return <Badge><AlertCircle className="h-3 w-3" /> {t('pending')}</Badge>;
+    return (
+      <Badge className="flex items-center gap-2">
+        <AlertCircle className="h-3 w-3" /> {t('pending')}
+      </Badge>
+    );
   };
 
   if (!company) {
@@ -148,172 +181,314 @@ export default function CompanyDashboard() {
   }
 
   const isApproved = company.approvalStatus === 'approved';
+  const activeJobs = jobs.filter(j => j.status === 'active').length;
+
+  const stats = {
+    totalJobs: jobs.length,
+    activeJobs,
+    totalApplicants: 0, // Will be calculated when we load applicants
+    pendingApplicants: 0,
+  };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" dir={dir}>
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-8">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-bold">{t('dashboard')}</h1>
-              <p className="text-muted-foreground">{company.name}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {getStatusBadge(company.approvalStatus)}
-              <Button onClick={logout} variant="outline">
-                {t('logout')}
-              </Button>
-            </div>
-          </div>
-
-          {!isApproved && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {company.approvalStatus === 'pending'
-                  ? t('companyPendingMessage')
-                  : t('companyRejectedMessage')}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {isApproved && (
-            <Tabs defaultValue="jobs" className="w-full">
-              <TabsList>
-                <TabsTrigger value="jobs">{t('myJobs')}</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="jobs" className="flex flex-col gap-4">
-                <Dialog open={jobDialogOpen} onOpenChange={setJobDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="h-4 w-4" /> {t('addNewJob')}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>{t('addNewJob')}</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('jobTitle')}</Label>
-                        <Input
-                          value={formData.title}
-                          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('workingHours')}</Label>
-                        <Input
-                          value={formData.workingHours}
-                          onChange={(e) => setFormData({ ...formData, workingHours: e.target.value })}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('qualification')}</Label>
-                        <Textarea
-                          value={formData.qualification}
-                          onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('skills')} (comma-separated)</Label>
-                        <Input
-                          value={formData.skills}
-                          onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('minSalary')}</Label>
-                        <Input
-                          type="number"
-                          value={formData.minSalary}
-                          onChange={(e) => setFormData({ ...formData, minSalary: e.target.value })}
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="healthInsurance"
-                          checked={formData.healthInsurance}
-                          onChange={(e) => setFormData({ ...formData, healthInsurance: e.target.checked })}
-                        />
-                        <Label htmlFor="healthInsurance">{t('healthInsurance')}</Label>
-                      </div>
-                      <Button onClick={handleCreateJob}>{t('save')}</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {jobs.map((job) => (
-                    <Card key={job._id}>
-                      <CardHeader>
-                        <CardTitle>{job.title}</CardTitle>
-                        <CardDescription>
-                          {job.minSalary} ر.س - {job.healthInsurance ? t('yes') : t('no')}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex flex-col gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => loadApplicants(job._id)}
-                        >
-                          <Users className="h-4 w-4" /> {t('viewApplicants')}
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => handleDeleteJob(job._id)}
-                        >
-                          {t('delete')}
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
+      <main className="flex-1 bg-gradient-to-br from-background via-muted/20 to-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col gap-8">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg">
+                  <Building2 className="h-7 w-7 text-white" />
                 </div>
-              </TabsContent>
-            </Tabs>
-          )}
+                <div className="flex flex-col gap-1">
+                  <h1 className="text-3xl font-bold">{t('dashboard')}</h1>
+                  <p className="text-muted-foreground">{company.name}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                {getStatusBadge(company.approvalStatus)}
+                <Button onClick={logout} variant="outline" className="flex items-center gap-2">
+                  <LogOut className="h-4 w-4" />
+                  {t('logout')}
+                </Button>
+              </div>
+            </div>
 
-          <Dialog open={applicantsDialogOpen} onOpenChange={setApplicantsDialogOpen}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{t('applicants')}</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col gap-4">
-                {applicants.map((app) => (
-                  <Card key={app._id}>
-                    <CardContent className="flex flex-col gap-4 p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col gap-2">
-                          <h3 className="font-semibold">{app.applicantName}</h3>
-                          <p className="text-sm text-muted-foreground">{app.applicantPhone}</p>
-                          <p className="text-sm">{t('applicantDisability')}: {app.applicantDisabilityType}</p>
-                        </div>
-                        <Badge>{t(app.status)}</Badge>
-                      </div>
-                      <Button
-                        variant="outline"
-                        onClick={() => window.open(app.cvUrl, '_blank')}
-                      >
-                        {t('downloadCV')}
-                      </Button>
+            {/* Status Alert */}
+            {!isApproved && (
+              <Alert className="border-2">
+                <AlertCircle className="h-5 w-5" />
+                <AlertDescription className="text-base">
+                  {company.approvalStatus === 'pending'
+                    ? t('companyPendingMessage')
+                    : t('companyRejectedMessage')}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Stats Cards - Only show if approved */}
+            {isApproved && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <Card className="border-2 hover:shadow-lg transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalJobs')}</CardTitle>
+                      <Briefcase className="h-5 w-5 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{stats.totalJobs}</div>
+                      <p className="text-xs text-muted-foreground mt-2">{stats.activeJobs} {t('active')}</p>
                     </CardContent>
                   </Card>
-                ))}
-                {applicants.length === 0 && (
-                  <p className="text-center text-muted-foreground py-8">
-                    {t('noApplications')}
-                  </p>
+
+                  <Card className="border-2 hover:shadow-lg transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">{t('activeJobs')}</CardTitle>
+                      <TrendingUp className="h-5 w-5 text-secondary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{stats.activeJobs}</div>
+                      <p className="text-xs text-muted-foreground mt-2">{t('currentlyActive')}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2 hover:shadow-lg transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalApplicants')}</CardTitle>
+                      <Users className="h-5 w-5 text-accent" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{stats.totalApplicants}</div>
+                      <p className="text-xs text-muted-foreground mt-2">{t('allApplications')}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-2 hover:shadow-lg transition-all">
+                    <CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">{t('companyName')}</CardTitle>
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-sm font-bold truncate">{company.name}</div>
+                      <p className="text-xs text-muted-foreground mt-2">{t('verified')}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Jobs Section */}
+                <Card className="border-2">
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                      <CardTitle className="text-2xl">{t('myJobs')}</CardTitle>
+                      <CardDescription>{jobs.length} {t('jobs')}</CardDescription>
+                    </div>
+                    <Dialog open={jobDialogOpen} onOpenChange={setJobDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="lg" className="bg-gradient-hero hover:opacity-90 shadow-lg">
+                          <Plus className="h-5 w-5" /> {t('addNewJob')}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl">{t('addNewJob')}</DialogTitle>
+                          <DialogDescription>{t('fillJobDetails')}</DialogDescription>
+                        </DialogHeader>
+                        <div className="flex flex-col gap-6">
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('jobTitle')}</Label>
+                            <Input
+                              value={formData.title}
+                              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                              className="h-12"
+                              placeholder={t('jobTitle')}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('workingHours')}</Label>
+                            <Input
+                              value={formData.workingHours}
+                              onChange={(e) => setFormData({ ...formData, workingHours: e.target.value })}
+                              className="h-12"
+                              placeholder="8 ساعات يومياً"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('qualification')}</Label>
+                            <Textarea
+                              value={formData.qualification}
+                              onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
+                              rows={3}
+                              placeholder={t('qualification')}
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('skills')} ({t('commaSeparated')})</Label>
+                            <Input
+                              value={formData.skills}
+                              onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                              className="h-12"
+                              placeholder="مهارات التواصل, العمل الجماعي"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('minSalary')} (ر.س)</Label>
+                            <Input
+                              type="number"
+                              value={formData.minSalary}
+                              onChange={(e) => setFormData({ ...formData, minSalary: e.target.value })}
+                              className="h-12"
+                              placeholder="5000"
+                            />
+                          </div>
+                          <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
+                            <input
+                              type="checkbox"
+                              id="healthInsurance"
+                              checked={formData.healthInsurance}
+                              onChange={(e) => setFormData({ ...formData, healthInsurance: e.target.checked })}
+                              className="w-5 h-5"
+                            />
+                            <Label htmlFor="healthInsurance" className="text-sm cursor-pointer flex items-center gap-2">
+                              <Shield className="h-4 w-4" />
+                              {t('healthInsurance')}
+                            </Label>
+                          </div>
+                          <Button onClick={handleCreateJob} size="lg" className="bg-gradient-hero hover:opacity-90">
+                            {t('save')}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </CardHeader>
+                  <CardContent>
+                    {jobs.length === 0 ? (
+                      <div className="text-center py-16">
+                        <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                        <p className="text-lg font-medium text-muted-foreground">{t('noJobs')}</p>
+                        <p className="text-sm text-muted-foreground mt-2">{t('createFirstJob')}</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {jobs.map((job) => (
+                          <Card key={job._id} className="border-2 hover:shadow-xl transition-all">
+                            <CardHeader className="flex flex-col gap-3">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1">
+                                  <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
+                                  <CardDescription className="flex items-center gap-2">
+                                    <DollarSign className="h-4 w-4" />
+                                    {job.minSalary} ر.س
+                                  </CardDescription>
+                                </div>
+                                <Badge variant={job.status === 'active' ? 'default' : 'secondary'}>
+                                  {t(job.status)}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="flex flex-col gap-4">
+                              <div className="flex flex-col gap-2 text-sm">
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <Clock className="h-4 w-4" />
+                                  <span>{job.workingHours}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <Shield className="h-4 w-4" />
+                                  <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>
+                                </div>
+                              </div>
+                              <div className="flex gap-2 pt-4 border-t">
+                                <Button
+                                  variant="outline"
+                                  onClick={() => loadApplicants(job._id)}
+                                  className="flex-1 flex items-center gap-2"
+                                >
+                                  <Users className="h-4 w-4" />
+                                  {t('viewApplicants')}
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  onClick={() => handleDeleteJob(job._id)}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </>
+            )}
+
+            {/* Applicants Dialog */}
+            <Dialog open={applicantsDialogOpen} onOpenChange={setApplicantsDialogOpen}>
+              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">{t('applicants')}</DialogTitle>
+                  <DialogDescription>{applicants.length} {t('applicants')}</DialogDescription>
+                </DialogHeader>
+                {applicants.length === 0 ? (
+                  <div className="text-center py-16">
+                    <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                    <p className="text-lg font-medium text-muted-foreground">{t('noApplications')}</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{t('applicantName')}</TableHead>
+                          <TableHead>{t('phoneNumber')}</TableHead>
+                          <TableHead>{t('applicantDisability')}</TableHead>
+                          <TableHead>{t('status')}</TableHead>
+                          <TableHead className="text-end">{t('actions')}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {applicants.map((app) => (
+                          <TableRow key={app._id}>
+                            <TableCell className="font-medium">{app.applicantName}</TableCell>
+                            <TableCell>{app.applicantPhone}</TableCell>
+                            <TableCell>{app.applicantDisabilityType}</TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                app.status === 'submitted' ? 'default' :
+                                app.status === 'shortlisted' ? 'default' :
+                                app.status === 'rejected' ? 'destructive' : 'secondary'
+                              }>
+                                {t(app.status)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-end">
+                              <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(app.cvUrl, '_blank')}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Download className="h-4 w-4" />
+                                  {t('cv')}
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </main>
       <Footer />
     </div>
   );
 }
-
