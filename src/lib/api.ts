@@ -27,15 +27,24 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${this.baseURL}${endpoint}`, {
+    // Ensure endpoint starts with /
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    // Ensure baseURL doesn't end with /
+    const normalizedBaseURL = this.baseURL.endsWith('/') ? this.baseURL.slice(0, -1) : this.baseURL;
+    const url = `${normalizedBaseURL}${normalizedEndpoint}`;
+
+    console.log('API Request:', url, options.method || 'GET'); // Debug log
+
+    const response = await fetch(url, {
       ...options,
       headers,
     });
 
     if (!response.ok) {
       const error: ApiError = await response.json().catch(() => ({
-        error: 'An error occurred',
+        error: `Request failed with status ${response.status}`,
       }));
+      console.error('API Error:', url, response.status, error); // Debug log
       throw new Error(error.error || error.message || 'Request failed');
     }
 
