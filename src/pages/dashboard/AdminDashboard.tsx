@@ -24,12 +24,13 @@ import {
   TrendingUp,
   Clock,
   Shield,
-  BarChart3
+  BarChart3,
+  Languages
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
-  const { dir } = useLanguage();
+  const { dir, language, toggleLanguage } = useLanguage();
   const { user, logout } = useAuth();
   const { toast } = useToast();
 
@@ -260,10 +261,21 @@ export default function AdminDashboard() {
                 <p className="text-sm text-muted-foreground">{user?.name}</p>
               </div>
             </div>
-            <Button onClick={logout} variant="outline" className="flex items-center gap-2">
-              <LogOut className="h-4 w-4" />
-              {t('logout')}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={toggleLanguage}
+                aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+                className="h-12 w-12"
+              >
+                <Languages className="h-5 w-5" />
+              </Button>
+              <Button onClick={logout} variant="outline" className="flex items-center gap-2">
+                <LogOut className="h-4 w-4" />
+                {t('logout')}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -277,9 +289,9 @@ export default function AdminDashboard() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalCompanies')}</CardTitle>
                 <Building2 className="h-5 w-5 text-primary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-2">
                 <div className="text-3xl font-bold">{stats.totalCompanies}</div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground">
                   {stats.pendingCompanies} {t('pending')}
                 </p>
               </CardContent>
@@ -290,9 +302,9 @@ export default function AdminDashboard() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalUsers')}</CardTitle>
                 <Users className="h-5 w-5 text-secondary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-2">
                 <div className="text-3xl font-bold">{stats.totalUsers}</div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground">
                   {users.filter(u => u.role === 'user').length} {t('users')}
                 </p>
               </CardContent>
@@ -303,9 +315,9 @@ export default function AdminDashboard() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalJobs')}</CardTitle>
                 <Briefcase className="h-5 w-5 text-accent" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-2">
                 <div className="text-3xl font-bold">{stats.totalJobs}</div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground">
                   {stats.activeJobs} {t('active')}
                 </p>
               </CardContent>
@@ -316,9 +328,9 @@ export default function AdminDashboard() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalApplications')}</CardTitle>
                 <FileText className="h-5 w-5 text-primary" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-2">
                 <div className="text-3xl font-bold">{stats.totalApplications}</div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground">
                   {t('recentActivity')}
                 </p>
               </CardContent>
@@ -342,7 +354,7 @@ export default function AdminDashboard() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="companies" className="flex flex-col gap-6 mt-6">
+            <TabsContent value="companies" className="flex flex-col gap-6">
               <div className="flex gap-4">
                 <Select value={companyFilter} onValueChange={setCompanyFilter}>
                   <SelectTrigger className="w-48">
@@ -415,7 +427,7 @@ export default function AdminDashboard() {
               </div>
             </TabsContent>
 
-            <TabsContent value="users" className="flex flex-col gap-6 mt-6">
+            <TabsContent value="users" className="flex flex-col gap-6">
               <div className="flex gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -479,7 +491,7 @@ export default function AdminDashboard() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="jobs" className="flex flex-col gap-6 mt-6">
+            <TabsContent value="jobs" className="flex flex-col gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>{t('jobs')}</CardTitle>
@@ -519,7 +531,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="col-span-2">
                               <span className="text-muted-foreground">{t('skills')}:</span>
-                              <div className="flex flex-wrap gap-2 mt-1">
+                              <div className="flex flex-wrap gap-2">
                                 {job.skills?.map((skill: string, idx: number) => (
                                   <Badge key={idx} variant="outline">{skill}</Badge>
                                 ))}
@@ -527,7 +539,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="col-span-2">
                               <span className="text-muted-foreground">{t('targetDisabilityTypes')}:</span>
-                              <div className="flex flex-col gap-2 mt-1">
+                              <div className="flex flex-col gap-2">
                                 {job.disabilityTypes?.map((type: string, idx: number) => {
                                   const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
                                   return (
@@ -596,7 +608,7 @@ export default function AdminDashboard() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="applications" className="flex flex-col gap-6 mt-6">
+            <TabsContent value="applications" className="flex flex-col gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>{t('applications')}</CardTitle>
