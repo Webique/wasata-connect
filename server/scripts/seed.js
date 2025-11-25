@@ -64,12 +64,12 @@ async function seed() {
         email: `seeker${i}@test.com`,
         passwordHash: 'password123',
         disabilityType: DISABILITY_TYPES[i % DISABILITY_TYPES.length],
-        cvUrl: `https://res.cloudinary.com/your-cloud/raw/upload/v1/wasata-connect/dummy-cv-${i}.pdf`, // Dummy CV URL
+        cvUrl: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'dummy-cloud'}/raw/upload/v1/wasata-connect/dummy-cv-${i}.pdf`,
         status: 'active'
       });
       await user.save();
       users.push(user);
-      console.log(`✅ User ${i} created - Phone: ${user.phone}, Password: password123`);
+      console.log(`✅ User ${i} created - Phone: ${user.phone}, Email: ${user.email}, Password: password123`);
     }
 
     // Create Companies
@@ -135,6 +135,7 @@ async function seed() {
       'مدير مشروع'
     ];
 
+    // Create mix of approved and pending jobs
     for (let i = 0; i < 5; i++) {
       const job = new Job({
         companyId: approvedCompany._id,
@@ -144,29 +145,33 @@ async function seed() {
         skills: ['مهارات التواصل', 'العمل الجماعي', 'الالتزام بالمواعيد'],
         minSalary: 5000 + (i * 1000),
         healthInsurance: i % 2 === 0,
-        disabilityTypes: [DISABILITY_TYPES[i % DISABILITY_TYPES.length]], // Target specific disability type
-        approvalStatus: 'approved', // Pre-approve seed jobs
+        disabilityTypes: [
+          DISABILITY_TYPES[i % DISABILITY_TYPES.length],
+          DISABILITY_TYPES[(i + 1) % DISABILITY_TYPES.length] // Add 2 disability types per job
+        ],
+        approvalStatus: i < 3 ? 'approved' : 'pending', // First 3 approved, last 2 pending
         status: 'active'
       });
       await job.save();
       jobs.push(job);
-      console.log(`✅ Job ${i + 1} created: ${job.title}`);
+      console.log(`✅ Job ${i + 1} created: ${job.title} (${job.approvalStatus})`);
     }
 
-    // Create Applications
+    // Create Applications (only for approved jobs)
     console.log('📝 Creating applications...');
-    for (let i = 0; i < 3; i++) {
+    const approvedJobs = jobs.filter(job => job.approvalStatus === 'approved');
+    for (let i = 0; i < Math.min(3, approvedJobs.length); i++) {
       const application = new Application({
-        jobId: jobs[i]._id,
+        jobId: approvedJobs[i]._id,
         applicantUserId: users[i]._id,
         applicantName: users[i].name,
         applicantPhone: users[i].phone,
         applicantDisabilityType: users[i].disabilityType,
-        cvUrl: `/uploads/dummy-cv-${i + 1}.pdf`,
+        cvUrl: users[i].cvUrl, // Use saved CV from user profile
         status: i === 0 ? 'submitted' : i === 1 ? 'reviewed' : 'shortlisted'
       });
       await application.save();
-      console.log(`✅ Application ${i + 1} created`);
+      console.log(`✅ Application ${i + 1} created for job: ${approvedJobs[i].title}`);
     }
 
     console.log('\n🎉 Seed completed successfully!');
