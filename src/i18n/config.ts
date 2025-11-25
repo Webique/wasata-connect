@@ -72,7 +72,6 @@ const resources = {
       mapsUrl: "رابط موقع الشركة (Google Maps)",
       mowaamaDoc: "شهادة المواءمة (اختياري)",
       uploadDocument: "رفع المستند",
-      register: "التسجيل",
       alreadyHaveAccount: "لديك حساب؟",
       dontHaveAccount: "ليس لديك حساب؟",
       loginHere: "سجّل الدخول هنا",
@@ -111,7 +110,6 @@ const resources = {
       closed: "مغلق",
       pending: "قيد الانتظار",
       approved: "موافق عليه",
-      rejected: "مرفوض",
       
       // Company Status
       companyPending: "قيد الموافقة",
@@ -132,11 +130,8 @@ const resources = {
       search: "بحث",
       filter: "تصفية",
       all: "الكل",
-      crNumber: "رقم السجل التجاري",
-      status: "الحالة",
       phoneNumber: "رقم الهاتف",
       emailAddress: "البريد الإلكتروني",
-      companyName: "اسم الشركة",
       totalCompanies: "إجمالي الشركات",
       totalUsers: "إجمالي المستخدمين",
       totalJobs: "إجمالي الوظائف",
@@ -231,6 +226,15 @@ const resources = {
       pendingApplications: "الطلبات قيد الانتظار",
       shortlistedApplications: "الطلبات المختارة",
       totalApplicants: "إجمالي المتقدمين",
+      cvRequired: "السيرة الذاتية مطلوبة",
+      selectedFile: "الملف المحدد",
+      targetDisabilityTypes: "أنواع الإعاقة المستهدفة",
+      selectDisabilityTypes: "يرجى اختيار نوع إعاقة واحد على الأقل",
+      applyWithSavedCV: "التقديم بالسيرة الذاتية المحفوظة",
+      yourSavedCVWillBeSent: "سيتم إرسال سيرتك الذاتية المحفوظة إلى الشركة",
+      submitApplication: "إرسال الطلب",
+      jobApprovedSuccess: "تمت الموافقة على الوظيفة بنجاح",
+      jobRejectedSuccess: "تم رفض الوظيفة",
     }
   },
   en: {
@@ -303,7 +307,6 @@ const resources = {
       mapsUrl: "Company Location (Google Maps URL)",
       mowaamaDoc: "Mowa'ama Certificate (Optional)",
       uploadDocument: "Upload Document",
-      register: "Register",
       alreadyHaveAccount: "Already have an account?",
       dontHaveAccount: "Don't have an account?",
       loginHere: "Login here",
@@ -342,7 +345,6 @@ const resources = {
       closed: "Closed",
       pending: "Pending",
       approved: "Approved",
-      rejected: "Rejected",
       
       // Company Status
       companyPending: "Pending Approval",
@@ -363,11 +365,8 @@ const resources = {
       search: "Search",
       filter: "Filter",
       all: "All",
-      crNumber: "CR Number",
-      status: "Status",
       phoneNumber: "Phone Number",
       emailAddress: "Email Address",
-      companyName: "Company Name",
       totalCompanies: "Total Companies",
       totalUsers: "Total Users",
       totalJobs: "Total Jobs",
@@ -386,7 +385,6 @@ const resources = {
       // Job Details
       jobDetails: "Job Details",
       applyNow: "Apply Now",
-      uploadCV: "Upload CV",
       selectFile: "Select File",
       applyForJob: "Apply for Job",
       applicationSubmitted: "Application submitted successfully",
@@ -462,6 +460,16 @@ const resources = {
       pendingApplications: "Pending Applications",
       shortlistedApplications: "Shortlisted Applications",
       totalApplicants: "Total Applicants",
+      cvRequired: "CV/Resume is required",
+      uploadCV: "Upload CV/Resume",
+      selectedFile: "Selected file",
+      targetDisabilityTypes: "Target Disability Types",
+      selectDisabilityTypes: "Please select at least one disability type",
+      applyWithSavedCV: "Apply with your saved CV",
+      yourSavedCVWillBeSent: "Your saved CV will be sent to the company",
+      submitApplication: "Submit Application",
+      jobApprovedSuccess: "Job approved successfully",
+      jobRejectedSuccess: "Job rejected",
     }
   }
 };

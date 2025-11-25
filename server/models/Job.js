@@ -33,6 +33,16 @@ const jobSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  disabilityTypes: {
+    type: [String],
+    default: []
+    // Array of disability types this job targets
+  },
+  approvalStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
   status: {
     type: String,
     enum: ['active', 'closed'],

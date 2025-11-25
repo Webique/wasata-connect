@@ -11,7 +11,10 @@ export const authenticate = async (req, res, next) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret');
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-passwordHash');
 
     if (!user || user.status !== 'active') {

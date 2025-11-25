@@ -7,7 +7,12 @@ import Application from '../models/Application.js';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/wasata-connect';
+if (!process.env.MONGODB_URI) {
+  console.error('❌ MONGODB_URI is missing. Please set MONGODB_URI environment variable.');
+  process.exit(1);
+}
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Disability types in Arabic
 const DISABILITY_TYPES = [
@@ -59,6 +64,7 @@ async function seed() {
         email: `seeker${i}@test.com`,
         passwordHash: 'password123',
         disabilityType: DISABILITY_TYPES[i % DISABILITY_TYPES.length],
+        cvUrl: `https://res.cloudinary.com/your-cloud/raw/upload/v1/wasata-connect/dummy-cv-${i}.pdf`, // Dummy CV URL
         status: 'active'
       });
       await user.save();
@@ -138,6 +144,8 @@ async function seed() {
         skills: ['مهارات التواصل', 'العمل الجماعي', 'الالتزام بالمواعيد'],
         minSalary: 5000 + (i * 1000),
         healthInsurance: i % 2 === 0,
+        disabilityTypes: [DISABILITY_TYPES[i % DISABILITY_TYPES.length]], // Target specific disability type
+        approvalStatus: 'approved', // Pre-approve seed jobs
         status: 'active'
       });
       await job.save();

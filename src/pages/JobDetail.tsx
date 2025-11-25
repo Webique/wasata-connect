@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Briefcase, MapPin, DollarSign, Shield } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getDisabilityType } from '@/constants/disabilityTypes';
 
 export default function JobDetail() {
   const { t } = useTranslation();
@@ -19,12 +21,11 @@ export default function JobDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { dir } = useLanguage();
 
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [applyDialogOpen, setApplyDialogOpen] = useState(false);
-  const [cvFile, setCvFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -48,25 +49,13 @@ export default function JobDetail() {
   };
 
   const handleApply = async () => {
-    if (!cvFile) {
-      toast({
-        title: t('error'),
-        description: 'Please select a CV file',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setUploading(true);
     try {
-      const uploadResult = await api.uploadFile(cvFile);
       await api.createApplication({
         jobId: id!,
-        cvUrl: uploadResult.url,
       });
       toast({
         title: t('applicationSubmitted'),
-        description: 'Your application has been submitted successfully',
+        description: 'Your application has been submitted successfully using your saved CV',
       });
       setApplyDialogOpen(false);
       navigate('/dashboard/user');
@@ -76,8 +65,6 @@ export default function JobDetail() {
         description: error.message || t('somethingWentWrong'),
         variant: 'destructive',
       });
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -178,6 +165,31 @@ export default function JobDetail() {
                 </div>
               </div>
 
+              {job.disabilityTypes && job.disabilityTypes.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <h3 className="text-xl font-semibold">{t('targetDisabilityTypes')}</h3>
+                  <div className="flex flex-col gap-2">
+                    {job.disabilityTypes.map((type: string, idx: number) => {
+                      const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
+                      return (
+                        <div key={idx} className="p-3 bg-muted/50 rounded-lg border">
+                          <div className="flex flex-col gap-1">
+                            <span className="font-medium">
+                              {disabilityType ? (dir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                            </span>
+                            {disabilityType && (
+                              <span className="text-sm text-muted-foreground">
+                                {dir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {user?.role === 'user' && (
                 <Dialog open={applyDialogOpen} onOpenChange={setApplyDialogOpen}>
                   <DialogTrigger asChild>
@@ -189,25 +201,18 @@ export default function JobDetail() {
                     <DialogHeader>
                       <DialogTitle>{t('applyForJob')}</DialogTitle>
                       <DialogDescription>
-                        {t('uploadCV')}
+                        {t('applyWithSavedCV')}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-2">
-                        <Label htmlFor="cv">{t('selectFile')}</Label>
-                        <Input
-                          id="cv"
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          onChange={(e) => setCvFile(e.target.files?.[0] || null)}
-                        />
-                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {t('yourSavedCVWillBeSent')}
+                      </p>
                       <Button
                         onClick={handleApply}
-                        disabled={!cvFile || uploading}
                         className="w-full"
                       >
-                        {uploading ? '...' : t('submit')}
+                        {t('submitApplication')}
                       </Button>
                     </div>
                   </DialogContent>

@@ -19,9 +19,11 @@ router.get('/', async (req, res) => {
       .populate('companyId', 'name approvalStatus')
       .sort({ createdAt: -1 });
 
-    // Filter by company approval status
+    // Filter by company approval status AND job approval status
     jobs = jobs.filter(job => 
-      job.companyId && job.companyId.approvalStatus === 'approved'
+      job.companyId && 
+      job.companyId.approvalStatus === 'approved' &&
+      job.approvalStatus === 'approved' // Job must also be approved
     );
 
     // Search filter
@@ -51,8 +53,8 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Job not found' });
     }
 
-    // Check if company is approved
-    if (job.companyId.approvalStatus !== 'approved') {
+    // Check if company is approved AND job is approved
+    if (job.companyId.approvalStatus !== 'approved' || job.approvalStatus !== 'approved') {
       return res.status(404).json({ error: 'Job not found' });
     }
 

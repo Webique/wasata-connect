@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { getDisabilityType } from '@/constants/disabilityTypes';
 import { 
   Building2, 
   Users, 
@@ -126,6 +127,40 @@ export default function AdminDashboard() {
       });
       loadCompanies(companyFilter);
       loadData();
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message || t('somethingWentWrong'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleApproveJob = async (id: string) => {
+    try {
+      await api.approveJob(id);
+      toast({
+        title: t('approve'),
+        description: t('jobApprovedSuccess'),
+      });
+      loadJobs();
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message || t('somethingWentWrong'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRejectJob = async (id: string) => {
+    try {
+      await api.rejectJob(id);
+      toast({
+        title: t('reject'),
+        description: t('jobRejectedSuccess'),
+      });
+      loadJobs();
     } catch (error: any) {
       toast({
         title: t('error'),
@@ -451,26 +486,103 @@ export default function AdminDashboard() {
                   <CardDescription>{jobs.length} {t('jobs')}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-4">
                     {jobs.map((job) => (
                       <Card key={job._id} className="border-2">
                         <CardHeader>
-                          <CardTitle className="text-lg">{job.title}</CardTitle>
-                          <CardDescription>{job.companyId?.name}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-3">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">{t('minSalary')}:</span>
-                            <span className="font-medium">{job.minSalary} ر.س</span>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex flex-col gap-2 flex-1">
+                              <CardTitle className="text-lg">{job.title}</CardTitle>
+                              <CardDescription>{job.companyId?.name}</CardDescription>
+                            </div>
+                            <Badge variant={
+                              job.approvalStatus === 'approved' ? 'default' :
+                              job.approvalStatus === 'rejected' ? 'destructive' : 'secondary'
+                            }>
+                              {t(job.approvalStatus || 'pending')}
+                            </Badge>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteJob(job._id)}
-                            className="w-full"
-                          >
-                            {t('delete')}
-                          </Button>
+                        </CardHeader>
+                        <CardContent className="flex flex-col gap-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">{t('workingHours')}:</span>
+                              <p className="font-medium">{job.workingHours}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">{t('minSalary')}:</span>
+                              <p className="font-medium">{job.minSalary} ر.س</p>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">{t('qualification')}:</span>
+                              <p className="font-medium">{job.qualification}</p>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">{t('skills')}:</span>
+                              <div className="flex flex-wrap gap-2 mt-1">
+                                {job.skills?.map((skill: string, idx: number) => (
+                                  <Badge key={idx} variant="outline">{skill}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">{t('targetDisabilityTypes')}:</span>
+                              <div className="flex flex-col gap-2 mt-1">
+                                {job.disabilityTypes?.map((type: string, idx: number) => {
+                                  const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
+                                  return (
+                                    <div key={idx} className="p-2 bg-muted/50 rounded border">
+                                      <div className="flex flex-col gap-1">
+                                        <span className="font-medium text-sm">
+                                          {disabilityType ? (dir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                        </span>
+                                        {disabilityType && (
+                                          <span className="text-xs text-muted-foreground">
+                                            {dir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="text-muted-foreground">{t('healthInsurance')}:</span>
+                              <p className="font-medium">{job.healthInsurance ? t('yes') : t('no')}</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 pt-2 border-t">
+                            {job.approvalStatus === 'pending' && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleApproveJob(job._id)}
+                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                >
+                                  <CheckCircle className="h-4 w-4 me-2" />
+                                  {t('approve')}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => handleRejectJob(job._id)}
+                                  className="flex-1"
+                                >
+                                  <XCircle className="h-4 w-4 me-2" />
+                                  {t('reject')}
+                                </Button>
+                              </>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteJob(job._id)}
+                              className="flex-1"
+                            >
+                              {t('delete')}
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}

@@ -53,10 +53,10 @@ router.post('/jobs', authenticate, requireRole('company'), async (req, res) => {
       });
     }
 
-    const { title, workingHours, qualification, skills, minSalary, healthInsurance } = req.body;
+    const { title, workingHours, qualification, skills, minSalary, healthInsurance, disabilityTypes } = req.body;
 
-    if (!title || !workingHours || !qualification || !minSalary) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!title || !workingHours || !qualification || !minSalary || !disabilityTypes || disabilityTypes.length === 0) {
+      return res.status(400).json({ error: 'Missing required fields (title, workingHours, qualification, minSalary, disabilityTypes)' });
     }
 
     // Convert skills string to array if needed
@@ -64,6 +64,13 @@ router.post('/jobs', authenticate, requireRole('company'), async (req, res) => {
       ? skills 
       : typeof skills === 'string' 
         ? skills.split(',').map(s => s.trim()).filter(s => s)
+        : [];
+
+    // Convert disabilityTypes to array if needed
+    const disabilityTypesArray = Array.isArray(disabilityTypes)
+      ? disabilityTypes
+      : typeof disabilityTypes === 'string'
+        ? disabilityTypes.split(',').map(d => d.trim()).filter(d => d)
         : [];
 
     const job = new Job({
@@ -74,13 +81,15 @@ router.post('/jobs', authenticate, requireRole('company'), async (req, res) => {
       skills: skillsArray,
       minSalary: Number(minSalary),
       healthInsurance: Boolean(healthInsurance),
+      disabilityTypes: disabilityTypesArray,
+      approvalStatus: 'pending', // Jobs need admin approval
       status: 'active'
     });
 
     await job.save();
 
     res.status(201).json({
-      message: 'Job created successfully',
+      message: 'Job created successfully. Awaiting admin approval.',
       job
     });
   } catch (error) {

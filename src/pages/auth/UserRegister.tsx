@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/lib/api';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,18 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
-
-const DISABILITY_TYPES = [
-  'الإعاقة البصرية',
-  'الإعاقة السمعية',
-  'الإعاقة العقلية',
-  'الإعاقة الجسمية والحركية',
-  'اضطرابات النطق والكلام',
-  'صعوبات التعلم',
-  'الاضطرابات السلوكية والانفعالية',
-  'التوحد',
-  'الإعاقات المزدوجة والمتعددة',
-];
+import { FileText } from 'lucide-react';
+import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
 
 export default function UserRegister() {
   const { t } = useTranslation();
@@ -38,8 +29,10 @@ export default function UserRegister() {
     password: '',
     confirmPassword: '',
     disabilityType: '',
+    cvFile: null as File | null,
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,14 +55,29 @@ export default function UserRegister() {
       return;
     }
 
+    if (!formData.cvFile) {
+      toast({
+        title: t('error'),
+        description: t('cvRequired'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
+    setUploading(true);
     try {
+      // Upload CV first
+      const uploadResult = await api.uploadFile(formData.cvFile);
+      
+      // Then register user with CV URL
       await registerUser({
         name: formData.name,
         phone: formData.phone,
         email: formData.email || undefined,
         password: formData.password,
         disabilityType: formData.disabilityType,
+        cvUrl: uploadResult.url,
       });
       toast({
         title: t('register'),
@@ -84,6 +92,7 @@ export default function UserRegister() {
       });
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -136,13 +145,23 @@ export default function UserRegister() {
                   value={formData.disabilityType}
                   onValueChange={(value) => setFormData({ ...formData, disabilityType: value })}
                 >
-                  <SelectTrigger id="disabilityType">
-                    <SelectValue placeholder={t('selectDisabilityType')} />
+                  <SelectTrigger id="disabilityType" className="h-auto min-h-[3rem]">
+                    <SelectValue placeholder={t('selectDisabilityType')}>
+                      {formData.disabilityType && (() => {
+                        const selected = DISABILITY_TYPES.find(t => t.value === formData.disabilityType);
+                        return selected ? (dir === 'rtl' ? selected.labelAr : selected.labelEn) : formData.disabilityType;
+                      })()}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {DISABILITY_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
+                      <SelectItem key={type.value} value={type.value}>
+                        <div className="flex flex-col gap-1 py-1">
+                          <span className="font-medium">{dir === 'rtl' ? type.labelAr : type.labelEn}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {dir === 'rtl' ? type.descriptionAr : type.descriptionEn}
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -171,7 +190,32 @@ export default function UserRegister() {
                 />
               </div>
 
-              <Button type="submit" disabled={loading} className="w-full">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="cvFile" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  {t('uploadCV')} <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="cvFile"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  required
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setFormData({ ...formData, cvFile: file });
+                    }
+                  }}
+                  className="cursor-pointer"
+                />
+                {formData.cvFile && (
+                  <p className="text-sm text-muted-foreground">
+                    {t('selectedFile')}: {formData.cvFile.name}
+                  </p>
+                )}
+              </div>
+
+              <Button type="submit" disabled={loading || uploading} className="w-full">
                 {loading ? '...' : t('register')}
               </Button>
 

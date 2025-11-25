@@ -1,32 +1,24 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
 import { authenticate } from '../middleware/auth.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Create uploads directory if it doesn't exist
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Configure Cloudinary
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.error('❌ Cloudinary credentials are missing. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET environment variables.');
+  process.exit(1);
 }
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
-  }
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
+
+// Configure multer for memory storage (needed for Cloudinary)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage,
@@ -36,7 +28,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     // Allow PDF, DOC, DOCX files
     const allowedTypes = /pdf|doc|docx/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const extname = allowedTypes.test(file.originalname.toLowerCase().split('.').pop());
     const mimetype = allowedTypes.test(file.mimetype) || 
                      file.mimetype === 'application/msword' ||
                      file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
@@ -49,29 +41,44 @@ const upload = multer({
   }
 });
 
-// Upload file
-router.post('/', authenticate, upload.single('file'), (req, res) => {
+// Upload file to Cloudinary
+router.post('/', authenticate, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return URL - in production, this would be S3/Cloudinary URL
-    // For now, return local path that can be served statically
-    const fileUrl = `/uploads/${req.file.filename}`;
+    // Determine resource type based on file mimetype
+    const isImage = req.file.mimetype.startsWith('image/');
+    const resourceType = isImage ? 'image' : 'raw'; // 'raw' for PDFs and documents
     
+    // Upload to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: resourceType,
+          folder: 'wasata-connect',
+          public_id: `file-${Date.now()}-${Math.round(Math.random() * 1E9)}`
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      uploadStream.end(req.file.buffer);
+    });
+
     res.json({
       message: 'File uploaded successfully',
-      url: fileUrl,
-      filename: req.file.filename,
+      url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
       originalName: req.file.originalname,
       size: req.file.size
     });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to upload file' });
+    res.status(500).json({ error: 'Failed to upload file', details: error.message });
   }
 });
 
 export default router;
-

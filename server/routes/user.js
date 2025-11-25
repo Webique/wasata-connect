@@ -80,10 +80,15 @@ router.get('/applications', authenticate, requireRole('user'), async (req, res) 
 // Create application
 router.post('/applications', authenticate, requireRole('user'), async (req, res) => {
   try {
-    const { jobId, cvUrl } = req.body;
+    const { jobId } = req.body;
 
-    if (!jobId || !cvUrl) {
-      return res.status(400).json({ error: 'Job ID and CV URL required' });
+    if (!jobId) {
+      return res.status(400).json({ error: 'Job ID required' });
+    }
+
+    // Check if user has CV saved
+    if (!req.user.cvUrl) {
+      return res.status(400).json({ error: 'CV not found. Please upload your CV in your profile.' });
     }
 
     // Check if job exists and is active
@@ -92,8 +97,8 @@ router.post('/applications', authenticate, requireRole('user'), async (req, res)
       return res.status(404).json({ error: 'Job not found or closed' });
     }
 
-    if (job.companyId.approvalStatus !== 'approved') {
-      return res.status(400).json({ error: 'Cannot apply to jobs from unapproved companies' });
+    if (job.companyId.approvalStatus !== 'approved' || job.approvalStatus !== 'approved') {
+      return res.status(400).json({ error: 'Cannot apply to this job' });
     }
 
     // Check if already applied
@@ -106,14 +111,14 @@ router.post('/applications', authenticate, requireRole('user'), async (req, res)
       return res.status(400).json({ error: 'Already applied to this job' });
     }
 
-    // Create application
+    // Create application using saved CV
     const application = new Application({
       jobId,
       applicantUserId: req.user._id,
       applicantName: req.user.name,
       applicantPhone: req.user.phone,
       applicantDisabilityType: req.user.disabilityType,
-      cvUrl,
+      cvUrl: req.user.cvUrl, // Use saved CV from user profile
       status: 'submitted'
     });
 

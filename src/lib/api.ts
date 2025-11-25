@@ -58,6 +58,7 @@ class ApiClient {
     email?: string;
     password: string;
     disabilityType: string;
+    cvUrl: string;
   }) {
     return this.request<{ token: string; user: any }>('/auth/register-user', {
       method: 'POST',
@@ -125,7 +126,7 @@ class ApiClient {
     return this.request<any[]>('/me/applications');
   }
 
-  async createApplication(data: { jobId: string; cvUrl: string }) {
+  async createApplication(data: { jobId: string }) {
     return this.request<any>('/applications', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -148,6 +149,7 @@ class ApiClient {
     skills: string[];
     minSalary: number;
     healthInsurance: boolean;
+    disabilityTypes: string[];
   }) {
     return this.request<any>('/company/jobs', {
       method: 'POST',
@@ -204,12 +206,25 @@ class ApiClient {
     });
   }
 
-  async getAdminJobs(companyId?: string, status?: string) {
+  async getAdminJobs(companyId?: string, status?: string, approvalStatus?: string) {
     const params = new URLSearchParams();
     if (companyId) params.append('companyId', companyId);
     if (status) params.append('status', status);
+    if (approvalStatus) params.append('approvalStatus', approvalStatus);
     const query = params.toString() ? `?${params.toString()}` : '';
     return this.request<any[]>(`/admin/jobs${query}`);
+  }
+
+  async approveJob(id: string) {
+    return this.request<any>(`/admin/jobs/${id}/approve`, {
+      method: 'PUT',
+    });
+  }
+
+  async rejectJob(id: string) {
+    return this.request<any>(`/admin/jobs/${id}/reject`, {
+      method: 'PUT',
+    });
   }
 
   async deleteJobAdmin(id: string) {

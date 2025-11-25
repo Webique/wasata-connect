@@ -5,7 +5,13 @@ import Company from '../models/Company.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret';
+
+if (!process.env.JWT_SECRET) {
+  console.error('❌ JWT_SECRET is missing. Please set JWT_SECRET environment variable.');
+  process.exit(1);
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -15,10 +21,10 @@ const generateToken = (userId) => {
 // Register User (Job Seeker)
 router.post('/register-user', async (req, res) => {
   try {
-    const { name, phone, email, password, disabilityType } = req.body;
+    const { name, phone, email, password, disabilityType, cvUrl } = req.body;
 
-    if (!name || !phone || !password || !disabilityType) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!name || !phone || !password || !disabilityType || !cvUrl) {
+      return res.status(400).json({ error: 'Missing required fields (name, phone, password, disabilityType, cvUrl)' });
     }
 
     // Check if user exists
@@ -35,6 +41,7 @@ router.post('/register-user', async (req, res) => {
       email: email || null,
       passwordHash: password, // Will be hashed by pre-save hook
       disabilityType,
+      cvUrl, // CV saved during registration
       status: 'active'
     });
 
@@ -51,7 +58,8 @@ router.post('/register-user', async (req, res) => {
         phone: user.phone,
         email: user.email,
         role: user.role,
-        disabilityType: user.disabilityType
+        disabilityType: user.disabilityType,
+        cvUrl: user.cvUrl
       }
     });
   } catch (error) {

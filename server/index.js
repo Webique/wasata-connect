@@ -74,7 +74,12 @@ app.use('/api/uploads', uploadRoutes);
 app.use('/api/seed', seedRoutes);
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/wasata-connect';
+if (!process.env.MONGODB_URI) {
+  console.error('❌ MONGODB_URI is missing. Please set MONGODB_URI environment variable.');
+  process.exit(1);
+}
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 mongoose.connect(MONGODB_URI)
   .then(() => {

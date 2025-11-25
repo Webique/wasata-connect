@@ -158,20 +158,77 @@ router.delete('/users/:id', async (req, res) => {
 // Get all jobs
 router.get('/jobs', async (req, res) => {
   try {
-    const { companyId, status } = req.query;
+    const { companyId, status, approvalStatus } = req.query;
     const query = {};
 
     if (companyId) query.companyId = companyId;
     if (status) query.status = status;
+    if (approvalStatus) query.approvalStatus = approvalStatus;
 
     const jobs = await Job.find(query)
-      .populate('companyId', 'name approvalStatus')
+      .populate('companyId', 'name approvalStatus email phone')
       .sort({ createdAt: -1 });
 
     res.json(jobs);
   } catch (error) {
     console.error('Get jobs error:', error);
     res.status(500).json({ error: 'Failed to fetch jobs' });
+  }
+});
+
+// Approve job
+router.put('/jobs/:id/approve', async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id).populate('companyId');
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    job.approvalStatus = 'approved';
+    await job.save();
+
+    await createAuditLog(
+      req.user._id,
+      'approve_job',
+      { jobId: job._id, jobTitle: job.title, companyName: job.companyId.name },
+      req.ip
+    );
+
+    res.json({
+      message: 'Job approved successfully',
+      job
+    });
+  } catch (error) {
+    console.error('Approve job error:', error);
+    res.status(500).json({ error: 'Failed to approve job' });
+  }
+});
+
+// Reject job
+router.put('/jobs/:id/reject', async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id).populate('companyId');
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    job.approvalStatus = 'rejected';
+    await job.save();
+
+    await createAuditLog(
+      req.user._id,
+      'reject_job',
+      { jobId: job._id, jobTitle: job.title, companyName: job.companyId.name },
+      req.ip
+    );
+
+    res.json({
+      message: 'Job rejected',
+      job
+    });
+  } catch (error) {
+    console.error('Reject job error:', error);
+    res.status(500).json({ error: 'Failed to reject job' });
   }
 });
 

@@ -29,6 +29,7 @@ interface AuthContextType {
     email?: string;
     password: string;
     disabilityType: string;
+    cvUrl: string;
   }) => Promise<void>;
   registerCompany: (data: {
     name: string;
@@ -98,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     email?: string;
     password: string;
     disabilityType: string;
+    cvUrl: string;
   }) => {
     const data = await api.registerUser(userData);
     setToken(data.token);

@@ -33,6 +33,11 @@ const userSchema = new mongoose.Schema({
     default: null
     // Only for role='user'
   },
+  cvUrl: {
+    type: String,
+    default: null
+    // CV/resume URL - saved during registration for job seekers
+  },
   status: {
     type: String,
     enum: ['active', 'disabled'],

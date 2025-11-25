@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
+import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,6 +58,7 @@ export default function CompanyDashboard() {
     skills: '',
     minSalary: '',
     healthInsurance: false,
+    disabilityTypes: [] as string[],
   });
 
   useEffect(() => {
@@ -96,6 +98,14 @@ export default function CompanyDashboard() {
   };
 
   const handleCreateJob = async () => {
+    if (formData.disabilityTypes.length === 0) {
+      toast({
+        title: t('error'),
+        description: t('selectDisabilityTypes'),
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
       await api.createJob({
         title: formData.title,
@@ -104,6 +114,7 @@ export default function CompanyDashboard() {
         skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
         minSalary: Number(formData.minSalary),
         healthInsurance: formData.healthInsurance,
+        disabilityTypes: formData.disabilityTypes,
       });
       toast({
         title: t('save'),
@@ -117,6 +128,7 @@ export default function CompanyDashboard() {
         skills: '',
         minSalary: '',
         healthInsurance: false,
+        disabilityTypes: [],
       });
       loadJobs();
     } catch (error: any) {
@@ -341,6 +353,42 @@ export default function CompanyDashboard() {
                               className="h-12"
                               placeholder="5000"
                             />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('targetDisabilityTypes')} <span className="text-destructive">*</span></Label>
+                            <div className="flex flex-col gap-2 max-h-48 overflow-y-auto p-3 border rounded-lg bg-muted/30">
+                              {DISABILITY_TYPES.map((type) => (
+                                <div key={type.value} className="flex items-start gap-2">
+                                  <input
+                                    type="checkbox"
+                                    id={`disability-${type.value}`}
+                                    checked={formData.disabilityTypes.includes(type.value)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setFormData({
+                                          ...formData,
+                                          disabilityTypes: [...formData.disabilityTypes, type.value],
+                                        });
+                                      } else {
+                                        setFormData({
+                                          ...formData,
+                                          disabilityTypes: formData.disabilityTypes.filter((t) => t !== type.value),
+                                        });
+                                      }
+                                    }}
+                                    className="w-4 h-4 mt-1"
+                                  />
+                                  <Label htmlFor={`disability-${type.value}`} className="text-sm cursor-pointer flex-1">
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">{dir === 'rtl' ? type.labelAr : type.labelEn}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {dir === 'rtl' ? type.descriptionAr : type.descriptionEn}
+                                      </span>
+                                    </div>
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                           <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
                             <input
