@@ -30,7 +30,9 @@ import {
   DollarSign,
   Shield,
   ArrowRight,
-  Download
+  Download,
+  Edit,
+  Eye
 } from 'lucide-react';
 
 export default function UserDashboard() {
