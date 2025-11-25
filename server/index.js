@@ -12,6 +12,7 @@ import companyRoutes from './routes/company.js';
 import adminRoutes from './routes/admin.js';
 import jobRoutes from './routes/jobs.js';
 import uploadRoutes from './routes/upload.js';
+import seedRoutes from './routes/seed.js';
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use('/api/applications', userRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/seed', seedRoutes);
 
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/wasata-connect';
