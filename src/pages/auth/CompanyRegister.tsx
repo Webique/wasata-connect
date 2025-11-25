@@ -227,12 +227,17 @@ export default function CompanyRegister() {
                 {loading ? '...' : t('register')}
               </Button>
 
-              <p className="text-sm text-center text-muted-foreground">
-                {t('alreadyHaveAccount')}{' '}
-                <Link to="/login/company" className="text-primary hover:underline">
-                  {t('loginHere')}
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-center text-muted-foreground">
+                  {t('alreadyHaveAccount')}{' '}
+                  <Link to="/login" className="text-primary hover:underline">
+                    {t('loginHere')}
+                  </Link>
+                </p>
+                <Link to="/register" className="text-sm text-center text-muted-foreground hover:text-primary">
+                  ← {t('back')} {t('toRegisterSelection')}
                 </Link>
-              </p>
+              </div>
             </form>
           </CardContent>
         </Card>

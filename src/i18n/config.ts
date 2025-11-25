@@ -173,6 +173,20 @@ const resources = {
       companyBenefit1: "نشر الوظائف بسهولة",
       companyBenefit2: "إدارة المتقدمين",
       companyBenefit3: "البحث عن المواهب المناسبة",
+      
+      // Login Selection
+      loginAsSeeker: "تسجيل الدخول كباحث عن عمل",
+      loginAsSeekerDesc: "سجّل الدخول للوصول إلى حسابك",
+      loginAsCompany: "تسجيل الدخول كشركة",
+      loginAsCompanyDesc: "سجّل الدخول لإدارة شركتك",
+      seekerLoginBenefit1: "عرض الوظائف المتاحة",
+      seekerLoginBenefit2: "إدارة طلباتك",
+      seekerLoginBenefit3: "تحديث ملفك الشخصي",
+      companyLoginBenefit1: "نشر وإدارة الوظائف",
+      companyLoginBenefit2: "عرض المتقدمين",
+      companyLoginBenefit3: "إدارة معلومات الشركة",
+      toLoginSelection: "لصفحة تسجيل الدخول",
+      toRegisterSelection: "لصفحة التسجيل",
     }
   },
   en: {
@@ -346,6 +360,20 @@ const resources = {
       companyBenefit1: "Post jobs easily",
       companyBenefit2: "Manage applicants",
       companyBenefit3: "Find the right talent",
+      
+      // Login Selection
+      loginAsSeeker: "Login as Job Seeker",
+      loginAsSeekerDesc: "Sign in to access your account",
+      loginAsCompany: "Login as Company",
+      loginAsCompanyDesc: "Sign in to manage your company",
+      seekerLoginBenefit1: "View available jobs",
+      seekerLoginBenefit2: "Manage your applications",
+      seekerLoginBenefit3: "Update your profile",
+      companyLoginBenefit1: "Post and manage jobs",
+      companyLoginBenefit2: "View applicants",
+      companyLoginBenefit3: "Manage company information",
+      toLoginSelection: "to Login Selection",
+      toRegisterSelection: "to Register Selection",
     }
   }
 };

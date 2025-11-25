@@ -109,12 +109,17 @@ export default function UserLogin() {
                 {loading ? '...' : t('login')}
               </Button>
 
-              <p className="text-sm text-center text-muted-foreground">
-                {t('dontHaveAccount')}{' '}
-                <Link to="/register/user" className="text-primary hover:underline">
-                  {t('registerHere')}
+              <div className="flex flex-col gap-2">
+                <p className="text-sm text-center text-muted-foreground">
+                  {t('dontHaveAccount')}{' '}
+                  <Link to="/register" className="text-primary hover:underline">
+                    {t('registerHere')}
+                  </Link>
+                </p>
+                <Link to="/login" className="text-sm text-center text-muted-foreground hover:text-primary">
+                  ← {t('back')} {t('toLoginSelection')}
                 </Link>
-              </p>
+              </div>
             </form>
           </CardContent>
         </Card>

@@ -14,6 +14,7 @@ import Policies from "./pages/Policies";
 import NotFound from "./pages/NotFound";
 import JobDetail from "./pages/JobDetail";
 import RegisterSelection from "./pages/auth/RegisterSelection";
+import LoginSelection from "./pages/auth/LoginSelection";
 import UserRegister from "./pages/auth/UserRegister";
 import UserLogin from "./pages/auth/UserLogin";
 import CompanyRegister from "./pages/auth/CompanyRegister";
@@ -43,8 +44,9 @@ const App = () => (
               {/* Auth Routes */}
               <Route path="/register" element={<RegisterSelection />} />
               <Route path="/register/user" element={<UserRegister />} />
-              <Route path="/login/user" element={<UserLogin />} />
               <Route path="/register/company" element={<CompanyRegister />} />
+              <Route path="/login" element={<LoginSelection />} />
+              <Route path="/login/user" element={<UserLogin />} />
               <Route path="/login/company" element={<CompanyLogin />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               
