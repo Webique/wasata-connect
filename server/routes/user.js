@@ -16,7 +16,8 @@ router.get('/', authenticate, async (req, res) => {
       phone: user.phone,
       email: user.email,
       role: user.role,
-      disabilityType: user.disabilityType
+      disabilityType: user.disabilityType,
+      cvUrl: user.cvUrl
     });
   } catch (error) {
     console.error('Get user error:', error);
@@ -27,7 +28,7 @@ router.get('/', authenticate, async (req, res) => {
 // Update current user profile
 router.put('/', authenticate, async (req, res) => {
   try {
-    const { name, phone, email, disabilityType } = req.body;
+    const { name, phone, email, disabilityType, cvUrl } = req.body;
     const user = await User.findById(req.user._id);
 
     if (name) user.name = name;
@@ -35,6 +36,9 @@ router.put('/', authenticate, async (req, res) => {
     if (email) user.email = email;
     if (disabilityType && req.user.role === 'user') {
       user.disabilityType = disabilityType;
+    }
+    if (cvUrl && req.user.role === 'user') {
+      user.cvUrl = cvUrl;
     }
 
     await user.save();
@@ -47,7 +51,8 @@ router.put('/', authenticate, async (req, res) => {
         phone: user.phone,
         email: user.email,
         role: user.role,
-        disabilityType: user.disabilityType
+        disabilityType: user.disabilityType,
+        cvUrl: user.cvUrl
       }
     });
   } catch (error) {

@@ -217,7 +217,8 @@ router.get('/me', authenticate, async (req, res) => {
         phone: user.phone,
         email: user.email,
         role: user.role,
-        disabilityType: user.disabilityType
+        disabilityType: user.disabilityType,
+        cvUrl: user.cvUrl
       },
       company: company ? {
         id: company._id,

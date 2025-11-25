@@ -9,9 +9,13 @@ import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { DISABILITY_TYPES, getDisabilityType } from '@/constants/disabilityTypes';
 import { 
   Briefcase, 
   FileText, 
@@ -32,7 +36,7 @@ import {
 export default function UserDashboard() {
   const { t } = useTranslation();
   const { dir } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,10 +44,27 @@ export default function UserDashboard() {
   const [applications, setApplications] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [uploadingCV, setUploadingCV] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    phone: user?.phone || '',
+    email: user?.email || '',
+    disabilityType: user?.disabilityType || '',
+  });
 
   useEffect(() => {
     loadData();
-  }, []);
+    if (user) {
+      setProfileData({
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || '',
+        disabilityType: user.disabilityType || '',
+      });
+    }
+  }, [user]);
 
   const loadData = async () => {
     try {
@@ -106,6 +127,44 @@ export default function UserDashboard() {
         return <XCircle className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    try {
+      let cvUrl = user?.cvUrl;
+      
+      // If new CV file is selected, upload it first
+      if (cvFile) {
+        setUploadingCV(true);
+        const uploadResult = await api.uploadFile(cvFile);
+        cvUrl = uploadResult.url;
+      }
+
+      // Update profile
+      await api.updateProfile({
+        ...profileData,
+        cvUrl: cvUrl,
+      });
+
+      // Refresh user data
+      await refreshUser();
+      await loadData();
+      
+      toast({
+        title: t('save'),
+        description: t('profileUpdatedSuccess'),
+      });
+      setProfileDialogOpen(false);
+      setCvFile(null);
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message || t('somethingWentWrong'),
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingCV(false);
     }
   };
 
@@ -183,12 +242,15 @@ export default function UserDashboard() {
 
             {/* Main Content */}
             <Tabs defaultValue="jobs" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="jobs" className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" /> {t('jobs')}
                 </TabsTrigger>
                 <TabsTrigger value="applications" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" /> {t('myApplications')}
+                </TabsTrigger>
+                <TabsTrigger value="profile" className="flex items-center gap-2">
+                  <User className="h-4 w-4" /> {t('profile')}
                 </TabsTrigger>
               </TabsList>
 
@@ -245,6 +307,24 @@ export default function UserDashboard() {
                             <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>
                           </div>
                         </div>
+                        {job.disabilityTypes && job.disabilityTypes.length > 0 && (
+                          <div className="flex flex-col gap-2 pt-2 border-t">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-primary" />
+                              <span className="text-sm font-medium text-muted-foreground">{t('targetDisabilityTypes')}:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {job.disabilityTypes.map((type: string, idx: number) => {
+                                const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
+                                return (
+                                  <Badge key={idx} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary">
+                                    {disabilityType ? (dir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                  </Badge>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex flex-wrap gap-2 pt-2 border-t">
                           {job.skills?.slice(0, 3).map((skill: string, idx: number) => (
                             <Badge key={idx} variant="secondary" className="text-xs">
@@ -351,6 +431,178 @@ export default function UserDashboard() {
                           >
                             {t('browseJobs')}
                           </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="profile" className="flex flex-col gap-6 mt-6">
+                <Card className="border-2">
+                  <CardHeader className="flex flex-row items-center justify-between gap-4">
+                    <div className="flex flex-col gap-1">
+                      <CardTitle className="text-2xl">{t('profile')}</CardTitle>
+                      <CardDescription>{t('manageYourProfile')}</CardDescription>
+                    </div>
+                    <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button size="lg" className="bg-primary hover:bg-primary/90">
+                          <Edit className="h-5 w-5 me-2" />
+                          {t('editProfile')}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="text-2xl">{t('editProfile')}</DialogTitle>
+                          <DialogDescription>{t('updateYourInformation')}</DialogDescription>
+                        </DialogHeader>
+                        <div className="flex flex-col gap-6">
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('name')}</Label>
+                            <Input
+                              value={profileData.name}
+                              onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('phone')}</Label>
+                            <Input
+                              value={profileData.phone}
+                              onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('email')}</Label>
+                            <Input
+                              type="email"
+                              value={profileData.email}
+                              onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                              className="h-12"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('disabilityType')}</Label>
+                            <Select
+                              value={profileData.disabilityType}
+                              onValueChange={(value) => setProfileData({ ...profileData, disabilityType: value })}
+                            >
+                              <SelectTrigger className="h-12">
+                                <SelectValue placeholder={t('selectDisabilityType')} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {DISABILITY_TYPES.map((type) => (
+                                  <SelectItem key={type.value} value={type.value}>
+                                    <div className="flex flex-col gap-1 py-1">
+                                      <span className="font-medium">{dir === 'rtl' ? type.labelAr : type.labelEn}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {dir === 'rtl' ? type.descriptionAr : type.descriptionEn}
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium flex items-center gap-2">
+                              <FileText className="h-4 w-4" />
+                              {t('updateCV')}
+                            </Label>
+                            <Input
+                              type="file"
+                              accept=".pdf,.doc,.docx"
+                              onChange={(e) => setCvFile(e.target.files?.[0] || null)}
+                              className="cursor-pointer"
+                            />
+                            {cvFile && (
+                              <p className="text-sm text-muted-foreground">
+                                {t('selectedFile')}: {cvFile.name}
+                              </p>
+                            )}
+                            {user?.cvUrl && !cvFile && (
+                              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border">
+                                <FileText className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground flex-1">
+                                  {t('currentCV')}: <a href={user.cvUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{t('viewCV')}</a>
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <Button 
+                            onClick={handleUpdateProfile} 
+                            size="lg" 
+                            className="bg-primary hover:bg-primary/90"
+                            disabled={uploadingCV}
+                          >
+                            {uploadingCV ? '...' : t('save')}
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-sm font-medium text-muted-foreground">{t('name')}</Label>
+                        <p className="text-lg font-semibold">{user?.name}</p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-sm font-medium text-muted-foreground">{t('phone')}</Label>
+                        <p className="text-lg font-semibold">{user?.phone}</p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-sm font-medium text-muted-foreground">{t('email')}</Label>
+                        <p className="text-lg font-semibold">{user?.email || '-'}</p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Label className="text-sm font-medium text-muted-foreground">{t('disabilityType')}</Label>
+                        <p className="text-lg font-semibold">{user?.disabilityType || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 pt-4 border-t">
+                      <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        {t('myCV')}
+                      </Label>
+                      {user?.cvUrl ? (
+                        <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border">
+                          <FileText className="h-8 w-8 text-primary" />
+                          <div className="flex-1">
+                            <p className="font-medium">{t('cvUploaded')}</p>
+                            <p className="text-sm text-muted-foreground">{t('cvUsedForApplications')}</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => window.open(user.cvUrl, '_blank')}
+                              className="flex items-center gap-2"
+                            >
+                              <Eye className="h-4 w-4" />
+                              {t('viewCV')}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = user.cvUrl!;
+                                link.download = 'my-cv.pdf';
+                                link.click();
+                              }}
+                              className="flex items-center gap-2"
+                            >
+                              <Download className="h-4 w-4" />
+                              {t('downloadCV')}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-muted/30 rounded-lg border border-dashed text-center">
+                          <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-2 opacity-50" />
+                          <p className="text-sm text-muted-foreground">{t('noCVUploaded')}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{t('uploadCVToApply')}</p>
                         </div>
                       )}
                     </div>

@@ -115,6 +115,7 @@ class ApiClient {
     phone?: string;
     email?: string;
     disabilityType?: string;
+    cvUrl?: string;
   }) {
     return this.request<{ user: any }>('/me', {
       method: 'PUT',
