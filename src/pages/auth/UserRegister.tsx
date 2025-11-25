@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +26,7 @@ const DISABILITY_TYPES = [
 
 export default function UserRegister() {
   const { t } = useTranslation();
-  const { language } = require('@/contexts/LanguageContext').useLanguage();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const { registerUser } = useAuth();
   const { toast } = useToast();
