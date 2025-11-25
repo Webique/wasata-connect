@@ -68,16 +68,16 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/login">
-                  <Button variant="outline" size="lg" className="text-base h-12 min-w-[120px]">
-                    {t('login')}
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant="default" size="lg" className="text-base h-12 min-w-[120px] bg-primary hover:bg-primary/90">
-                    {t('register')}
-                  </Button>
-                </Link>
+            <Link to="/login">
+              <Button variant="outline" size="lg" className="text-base h-12 min-w-[120px]">
+                {t('login')}
+              </Button>
+            </Link>
+            <Link to="/register">
+              <Button variant="default" size="lg" className="text-base h-12 min-w-[120px] bg-primary hover:bg-primary/90">
+                {t('register')}
+              </Button>
+            </Link>
               </>
             )}
             <Button
@@ -145,16 +145,16 @@ export const Navbar = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" size="lg" className="w-full text-base h-12">
-                      {t('login')}
-                    </Button>
-                  </Link>
-                  <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="default" size="lg" className="w-full text-base h-12 bg-primary hover:bg-primary/90">
-                      {t('register')}
-                    </Button>
-                  </Link>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" size="lg" className="w-full text-base h-12">
+                  {t('login')}
+                </Button>
+              </Link>
+              <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="default" size="lg" className="w-full text-base h-12 bg-primary hover:bg-primary/90">
+                  {t('register')}
+                </Button>
+              </Link>
                 </>
               )}
               <Button

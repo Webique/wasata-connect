@@ -132,6 +132,25 @@ const resources = {
       search: "بحث",
       filter: "تصفية",
       all: "الكل",
+      crNumber: "رقم السجل التجاري",
+      status: "الحالة",
+      phoneNumber: "رقم الهاتف",
+      emailAddress: "البريد الإلكتروني",
+      companyName: "اسم الشركة",
+      totalCompanies: "إجمالي الشركات",
+      totalUsers: "إجمالي المستخدمين",
+      totalJobs: "إجمالي الوظائف",
+      totalApplications: "إجمالي الطلبات",
+      pendingCompanies: "شركات قيد الانتظار",
+      approvedCompanies: "شركات موافق عليها",
+      activeJobs: "وظائف نشطة",
+      recentActivity: "النشاط الأخير",
+      noData: "لا توجد بيانات",
+      confirmDelete: "هل أنت متأكد من الحذف؟",
+      deleteSuccess: "تم الحذف بنجاح",
+      approveSuccess: "تمت الموافقة بنجاح",
+      rejectSuccess: "تم الرفض بنجاح",
+      actions: "الإجراءات",
       
       // Job Details
       jobDetails: "تفاصيل الوظيفة",
@@ -187,6 +206,7 @@ const resources = {
       companyLoginBenefit3: "إدارة معلومات الشركة",
       toLoginSelection: "لصفحة تسجيل الدخول",
       toRegisterSelection: "لصفحة التسجيل",
+      useEmailInstead: "استخدام البريد الإلكتروني بدلاً من الهاتف",
     }
   },
   en: {
@@ -319,6 +339,25 @@ const resources = {
       search: "Search",
       filter: "Filter",
       all: "All",
+      crNumber: "CR Number",
+      status: "Status",
+      phoneNumber: "Phone Number",
+      emailAddress: "Email Address",
+      companyName: "Company Name",
+      totalCompanies: "Total Companies",
+      totalUsers: "Total Users",
+      totalJobs: "Total Jobs",
+      totalApplications: "Total Applications",
+      pendingCompanies: "Pending Companies",
+      approvedCompanies: "Approved Companies",
+      activeJobs: "Active Jobs",
+      recentActivity: "Recent Activity",
+      noData: "No data available",
+      confirmDelete: "Are you sure you want to delete?",
+      deleteSuccess: "Deleted successfully",
+      approveSuccess: "Approved successfully",
+      rejectSuccess: "Rejected successfully",
+      actions: "Actions",
       
       // Job Details
       jobDetails: "Job Details",
@@ -374,6 +413,7 @@ const resources = {
       companyLoginBenefit3: "Manage company information",
       toLoginSelection: "to Login Selection",
       toRegisterSelection: "to Register Selection",
+      useEmailInstead: "Use Email instead of Phone",
     }
   }
 };
