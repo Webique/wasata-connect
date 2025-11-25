@@ -37,23 +37,13 @@ const Index = () => {
                 {t('heroSubtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link to="/register/user" className="w-full sm:w-auto">
+                <Link to="/register" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
                     className="w-full sm:w-auto h-14 px-8 text-lg bg-white text-primary hover:bg-white/90 shadow-xl"
                   >
                     <Users className="h-5 w-5" />
-                    {t('registerAsSeeker')}
-                  </Button>
-                </Link>
-                <Link to="/register/company" className="w-full sm:w-auto">
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
-                    className="w-full sm:w-auto h-14 px-8 text-lg bg-transparent text-white border-2 border-white hover:bg-white hover:text-primary shadow-xl"
-                  >
-                    <Building2 className="h-5 w-5" />
-                    {t('registerAsCompany')}
+                    {t('register')}
                   </Button>
                 </Link>
               </div>

@@ -162,6 +162,17 @@ const resources = {
       submit: "إرسال",
       loginToApply: "سجّل الدخول للتقديم على الوظيفة",
       viewLocation: "عرض الموقع",
+      
+      // Register Selection
+      chooseAccountType: "اختر نوع الحساب",
+      registerAsSeekerDesc: "ابحث عن فرص عمل مناسبة لك",
+      registerAsCompanyDesc: "انشر الوظائف ووظّف المواهب",
+      seekerBenefit1: "تصفح الوظائف المتاحة",
+      seekerBenefit2: "تقديم طلبات بسهولة",
+      seekerBenefit3: "تتبع حالة طلباتك",
+      companyBenefit1: "نشر الوظائف بسهولة",
+      companyBenefit2: "إدارة المتقدمين",
+      companyBenefit3: "البحث عن المواهب المناسبة",
     }
   },
   en: {
@@ -324,6 +335,17 @@ const resources = {
       submit: "Submit",
       loginToApply: "Login to apply for this job",
       viewLocation: "View Location",
+      
+      // Register Selection
+      chooseAccountType: "Choose Account Type",
+      registerAsSeekerDesc: "Find job opportunities that fit you",
+      registerAsCompanyDesc: "Post jobs and hire talent",
+      seekerBenefit1: "Browse available jobs",
+      seekerBenefit2: "Apply easily",
+      seekerBenefit3: "Track your applications",
+      companyBenefit1: "Post jobs easily",
+      companyBenefit2: "Manage applicants",
+      companyBenefit3: "Find the right talent",
     }
   }
 };
