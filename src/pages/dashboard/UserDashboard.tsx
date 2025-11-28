@@ -41,6 +41,9 @@ export default function UserDashboard() {
   const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Ensure dir is always defined to prevent minification issues
+  const currentDir = dir || 'rtl';
 
   const [jobs, setJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
@@ -171,7 +174,7 @@ export default function UserDashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen" dir={dir}>
+    <div className="flex flex-col min-h-screen" dir={currentDir}>
       <Navbar />
       <main className="flex-1 bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="container mx-auto px-4 py-8">
@@ -317,10 +320,10 @@ export default function UserDashboard() {
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {job.disabilityTypes.map((type: string, idx: number) => {
-                                const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
+                                const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
                                 return (
                                   <Badge key={idx} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary">
-                                    {disabilityType ? (dir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                    {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
                                   </Badge>
                                 );
                               })}
@@ -498,9 +501,9 @@ export default function UserDashboard() {
                                 {DISABILITY_TYPES.map((type) => (
                                   <SelectItem key={type.value} value={type.value}>
                                     <div className="flex flex-col gap-1 py-1">
-                                      <span className="font-medium">{dir === 'rtl' ? type.labelAr : type.labelEn}</span>
+                                      <span className="font-medium">{currentDir === 'rtl' ? type.labelAr : type.labelEn}</span>
                                       <span className="text-xs text-muted-foreground">
-                                        {dir === 'rtl' ? type.descriptionAr : type.descriptionEn}
+                                        {currentDir === 'rtl' ? type.descriptionAr : type.descriptionEn}
                                       </span>
                                     </div>
                                   </SelectItem>
