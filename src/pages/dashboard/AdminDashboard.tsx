@@ -5,13 +5,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { getDisabilityType } from '@/constants/disabilityTypes';
+import { getDisabilityType, DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { SAUDI_CITIES, getCityLabel } from '@/constants/saudiCities';
 import { 
   Building2, 
   Users, 
@@ -42,8 +44,22 @@ export default function AdminDashboard() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Company filters
   const [companyFilter, setCompanyFilter] = useState<string>('all');
-  const [userSearch, setUserSearch] = useState('');
+  const [companyLocationFilter, setCompanyLocationFilter] = useState<string>('all');
+  const [companySearch, setCompanySearch] = useState('');
+  
+  // Job Seeker filters
+  const [seekerDisabilityFilter, setSeekerDisabilityFilter] = useState<string>('all');
+  const [seekerLocationFilter, setSeekerLocationFilter] = useState<string>('all');
+  const [seekerStatusFilter, setSeekerStatusFilter] = useState<string>('all');
+  const [seekerSearch, setSeekerSearch] = useState('');
+  
+  // Employer filters
+  const [employerLocationFilter, setEmployerLocationFilter] = useState<string>('all');
+  const [employerStatusFilter, setEmployerStatusFilter] = useState<string>('all');
+  const [employerSearch, setEmployerSearch] = useState('');
 
   useEffect(() => {
     loadData();
@@ -230,18 +246,75 @@ export default function AdminDashboard() {
     }
   };
 
-  const filteredUsers = userSearch
-    ? users.filter(
-        (u) =>
-          u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
-          u.phone?.includes(userSearch) ||
-          u.email?.toLowerCase().includes(userSearch.toLowerCase())
-      )
-    : users;
+  // Separate job seekers and employers
+  const jobSeekers = users.filter(u => u.role === 'user');
+  const employers = users.filter(u => u.role === 'company');
+  
+  // Filter job seekers
+  const filteredJobSeekers = jobSeekers.filter((seeker) => {
+    // Search filter
+    if (seekerSearch && !(
+      seeker.name?.toLowerCase().includes(seekerSearch.toLowerCase()) ||
+      seeker.phone?.includes(seekerSearch) ||
+      seeker.email?.toLowerCase().includes(seekerSearch.toLowerCase())
+    )) return false;
+    
+    // Disability type filter
+    if (seekerDisabilityFilter !== 'all' && seeker.disabilityType !== seekerDisabilityFilter) return false;
+    
+    // Location filter
+    if (seekerLocationFilter !== 'all' && seeker.location !== seekerLocationFilter) return false;
+    
+    // Status filter
+    if (seekerStatusFilter !== 'all' && seeker.status !== seekerStatusFilter) return false;
+    
+    return true;
+  });
+  
+  // Filter employers
+  const filteredEmployers = employers.filter((employer) => {
+    // Search filter
+    if (employerSearch && !(
+      employer.name?.toLowerCase().includes(employerSearch.toLowerCase()) ||
+      employer.phone?.includes(employerSearch) ||
+      employer.email?.toLowerCase().includes(employerSearch.toLowerCase())
+    )) return false;
+    
+    // Location filter
+    if (employerLocationFilter !== 'all' && employer.location !== employerLocationFilter) return false;
+    
+    // Status filter
+    if (employerStatusFilter !== 'all' && employer.status !== employerStatusFilter) return false;
+    
+    return true;
+  });
+  
+  // Filter companies
+  const filteredCompanies = companies.filter((company) => {
+    // Search filter
+    if (companySearch && !(
+      company.name?.toLowerCase().includes(companySearch.toLowerCase()) ||
+      company.email?.toLowerCase().includes(companySearch.toLowerCase()) ||
+      company.phone?.includes(companySearch) ||
+      company.crNumber?.includes(companySearch)
+    )) return false;
+    
+    // Approval status filter
+    if (companyFilter !== 'all' && company.approvalStatus !== companyFilter) return false;
+    
+    // Location filter - need to get location from owner user
+    if (companyLocationFilter !== 'all') {
+      const owner = employers.find(e => e._id === company.ownerUserId?._id || e._id === company.ownerUserId);
+      if (!owner || owner.location !== companyLocationFilter) return false;
+    }
+    
+    return true;
+  });
 
   const stats = {
     totalCompanies: companies.length,
-    totalUsers: users.length,
+    totalJobSeekers: jobSeekers.length,
+    totalEmployers: employers.length,
     totalJobs: jobs.length,
     totalApplications: applications.length,
     pendingCompanies: companies.filter(c => c.approvalStatus === 'pending').length,
@@ -302,13 +375,26 @@ export default function AdminDashboard() {
 
             <Card className="border-2 hover:shadow-lg transition-all">
               <CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{t('totalUsers')}</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{currentDir === 'rtl' ? 'الباحثون عن عمل' : 'Job Seekers'}</CardTitle>
                 <Users className="h-5 w-5 text-secondary" />
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
-                <div className="text-3xl font-bold">{stats.totalUsers}</div>
+                <div className="text-3xl font-bold">{stats.totalJobSeekers}</div>
                 <p className="text-xs text-muted-foreground">
-                  {users.filter(u => u.role === 'user').length} {t('users')}
+                  {currentDir === 'rtl' ? 'إجمالي الباحثين' : 'Total Seekers'}
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 hover:shadow-lg transition-all">
+              <CardHeader className="flex flex-row items-center justify-between gap-4 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">{currentDir === 'rtl' ? 'أصحاب العمل' : 'Employers'}</CardTitle>
+                <Building2 className="h-5 w-5 text-accent" />
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2">
+                <div className="text-3xl font-bold">{stats.totalEmployers}</div>
+                <p className="text-xs text-muted-foreground">
+                  {currentDir === 'rtl' ? 'إجمالي أصحاب العمل' : 'Total Employers'}
                 </p>
               </CardContent>
             </Card>
@@ -341,13 +427,16 @@ export default function AdminDashboard() {
           </div>
 
           {/* Main Content Tabs */}
-          <Tabs defaultValue="companies" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="jobSeekers" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="jobSeekers" className="flex items-center gap-2">
+                <Users className="h-4 w-4" /> {currentDir === 'rtl' ? 'الباحثون عن عمل' : 'Job Seekers'}
+              </TabsTrigger>
+              <TabsTrigger value="employers" className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" /> {currentDir === 'rtl' ? 'أصحاب العمل' : 'Employers'}
+              </TabsTrigger>
               <TabsTrigger value="companies" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" /> {t('companies')}
-              </TabsTrigger>
-              <TabsTrigger value="users" className="flex items-center gap-2">
-                <Users className="h-4 w-4" /> {t('users')}
               </TabsTrigger>
               <TabsTrigger value="jobs" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" /> {t('jobs')}
@@ -358,22 +447,69 @@ export default function AdminDashboard() {
             </TabsList>
 
             <TabsContent value="companies" className="flex flex-col gap-6">
-              <div className="flex gap-4">
-                <Select value={companyFilter} onValueChange={setCompanyFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder={t('filter')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t('all')}</SelectItem>
-                    <SelectItem value="pending">{t('pending')}</SelectItem>
-                    <SelectItem value="approved">{t('approved')}</SelectItem>
-                    <SelectItem value="rejected">{t('rejected')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Filters */}
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="text-lg">{currentDir === 'rtl' ? 'الفلاتر' : 'Filters'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'البحث' : 'Search'}</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder={currentDir === 'rtl' ? 'البحث بالاسم، البريد، الهاتف، السجل...' : 'Search by name, email, phone, CR...'}
+                          value={companySearch}
+                          onChange={(e) => setCompanySearch(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{t('status')}</Label>
+                      <Select value={companyFilter} onValueChange={setCompanyFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'حالة الموافقة' : 'Approval Status'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{t('all')}</SelectItem>
+                          <SelectItem value="pending">{t('pending')}</SelectItem>
+                          <SelectItem value="approved">{t('approved')}</SelectItem>
+                          <SelectItem value="rejected">{t('rejected')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'الموقع' : 'Location'}</Label>
+                      <Select value={companyLocationFilter} onValueChange={setCompanyLocationFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'}</SelectItem>
+                          {SAUDI_CITIES.map((city) => (
+                            <SelectItem key={city.value} value={city.value}>
+                              {currentDir === 'rtl' ? city.labelAr : city.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {companies.map((company) => (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('companies')}</CardTitle>
+                  <CardDescription>{filteredCompanies.length} {currentDir === 'rtl' ? 'شركة' : 'companies'} ({companies.length} {currentDir === 'rtl' ? 'إجمالي' : 'total'})</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCompanies.map((company) => {
+                      const owner = employers.find(e => e._id === company.ownerUserId?._id || e._id === company.ownerUserId);
+                      return (
                   <Card key={company._id} className="border-2 hover:shadow-lg transition-all">
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4">
@@ -399,6 +535,14 @@ export default function AdminDashboard() {
                           <span className="text-muted-foreground">{t('phoneNumber')}:</span>
                           <span className="font-medium">{company.phone}</span>
                         </div>
+                        {owner?.location && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">{currentDir === 'rtl' ? 'الموقع' : 'Location'}:</span>
+                            <Badge variant="secondary">
+                              {getCityLabel(owner.location, currentDir === 'rtl' ? 'ar' : 'en')}
+                            </Badge>
+                          </div>
+                        )}
                       </div>
                       {company.approvalStatus === 'pending' && (
                         <div className="flex gap-2 pt-2 border-t">
@@ -421,32 +565,92 @@ export default function AdminDashboard() {
                       )}
                     </CardContent>
                   </Card>
-                ))}
-                {companies.length === 0 && (
-                  <div className="col-span-full text-center py-12 text-muted-foreground">
-                    {t('noData')}
+                      );
+                    })}
+                    {filteredCompanies.length === 0 && (
+                      <div className="col-span-full text-center py-12 text-muted-foreground">
+                        {t('noData')}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
-            <TabsContent value="users" className="flex flex-col gap-6">
-              <div className="flex gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder={t('search')}
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
+            {/* Job Seekers Tab */}
+            <TabsContent value="jobSeekers" className="flex flex-col gap-6">
+              {/* Filters */}
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="text-lg">{currentDir === 'rtl' ? 'الفلاتر' : 'Filters'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'البحث' : 'Search'}</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder={currentDir === 'rtl' ? 'البحث بالاسم، الهاتف، البريد...' : 'Search by name, phone, email...'}
+                          value={seekerSearch}
+                          onChange={(e) => setSeekerSearch(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{t('disabilityType')}</Label>
+                      <Select value={seekerDisabilityFilter} onValueChange={setSeekerDisabilityFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع الأنواع' : 'All Types'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع الأنواع' : 'All Types'}</SelectItem>
+                          {DISABILITY_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {currentDir === 'rtl' ? type.labelAr : type.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'الموقع' : 'Location'}</Label>
+                      <Select value={seekerLocationFilter} onValueChange={setSeekerLocationFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'}</SelectItem>
+                          {SAUDI_CITIES.map((city) => (
+                            <SelectItem key={city.value} value={city.value}>
+                              {currentDir === 'rtl' ? city.labelAr : city.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{t('status')}</Label>
+                      <Select value={seekerStatusFilter} onValueChange={setSeekerStatusFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع الحالات' : 'All Status'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع الحالات' : 'All Status'}</SelectItem>
+                          <SelectItem value="active">{t('active')}</SelectItem>
+                          <SelectItem value="disabled">{currentDir === 'rtl' ? 'معطل' : 'Disabled'}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>{t('users')}</CardTitle>
-                  <CardDescription>{filteredUsers.length} {t('users')}</CardDescription>
+                  <CardTitle>{currentDir === 'rtl' ? 'الباحثون عن عمل' : 'Job Seekers'}</CardTitle>
+                  <CardDescription>{filteredJobSeekers.length} {currentDir === 'rtl' ? 'باحث' : 'seekers'} ({jobSeekers.length} {currentDir === 'rtl' ? 'إجمالي' : 'total'})</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -455,37 +659,165 @@ export default function AdminDashboard() {
                         <TableHead>{t('name')}</TableHead>
                         <TableHead>{t('phoneNumber')}</TableHead>
                         <TableHead>{t('emailAddress')}</TableHead>
+                        <TableHead>{t('disabilityType')}</TableHead>
+                        <TableHead>{currentDir === 'rtl' ? 'الموقع' : 'Location'}</TableHead>
                         <TableHead>{t('status')}</TableHead>
                         <TableHead className="text-end">{t('actions')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredUsers.map((u) => (
-                        <TableRow key={u._id}>
-                          <TableCell className="font-medium">{u.name}</TableCell>
-                          <TableCell>{u.phone}</TableCell>
-                          <TableCell>{u.email || '-'}</TableCell>
+                      {filteredJobSeekers.map((seeker) => (
+                        <TableRow key={seeker._id}>
+                          <TableCell className="font-medium">{seeker.name}</TableCell>
+                          <TableCell>{seeker.phone}</TableCell>
+                          <TableCell>{seeker.email || '-'}</TableCell>
                           <TableCell>
-                            <Badge variant={u.status === 'active' ? 'default' : 'secondary'}>
-                              {t(u.status)}
+                            {seeker.disabilityType ? (
+                              <Badge variant="outline">
+                                {(() => {
+                                  const dt = getDisabilityType(seeker.disabilityType, currentDir === 'rtl' ? 'ar' : 'en');
+                                  return dt ? (currentDir === 'rtl' ? dt.labelAr : dt.labelEn) : seeker.disabilityType;
+                                })()}
+                              </Badge>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {seeker.location ? (
+                              <Badge variant="secondary">
+                                {getCityLabel(seeker.location, currentDir === 'rtl' ? 'ar' : 'en')}
+                              </Badge>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={seeker.status === 'active' ? 'default' : 'secondary'}>
+                              {t(seeker.status)}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-end">
-                            {u.role !== 'admin' && (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleDeleteUser(u._id)}
-                              >
-                                {t('delete')}
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteUser(seeker._id)}
+                            >
+                              {t('delete')}
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                  {filteredUsers.length === 0 && (
+                  {filteredJobSeekers.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      {t('noData')}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Employers Tab */}
+            <TabsContent value="employers" className="flex flex-col gap-6">
+              {/* Filters */}
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="text-lg">{currentDir === 'rtl' ? 'الفلاتر' : 'Filters'}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'البحث' : 'Search'}</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder={currentDir === 'rtl' ? 'البحث بالاسم، الهاتف، البريد...' : 'Search by name, phone, email...'}
+                          value={employerSearch}
+                          onChange={(e) => setEmployerSearch(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'الموقع' : 'Location'}</Label>
+                      <Select value={employerLocationFilter} onValueChange={setEmployerLocationFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'}</SelectItem>
+                          {SAUDI_CITIES.map((city) => (
+                            <SelectItem key={city.value} value={city.value}>
+                              {currentDir === 'rtl' ? city.labelAr : city.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{t('status')}</Label>
+                      <Select value={employerStatusFilter} onValueChange={setEmployerStatusFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع الحالات' : 'All Status'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع الحالات' : 'All Status'}</SelectItem>
+                          <SelectItem value="active">{t('active')}</SelectItem>
+                          <SelectItem value="disabled">{currentDir === 'rtl' ? 'معطل' : 'Disabled'}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{currentDir === 'rtl' ? 'أصحاب العمل' : 'Employers'}</CardTitle>
+                  <CardDescription>{filteredEmployers.length} {currentDir === 'rtl' ? 'صاحب عمل' : 'employers'} ({employers.length} {currentDir === 'rtl' ? 'إجمالي' : 'total'})</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t('name')}</TableHead>
+                        <TableHead>{t('phoneNumber')}</TableHead>
+                        <TableHead>{t('emailAddress')}</TableHead>
+                        <TableHead>{currentDir === 'rtl' ? 'الموقع' : 'Location'}</TableHead>
+                        <TableHead>{t('status')}</TableHead>
+                        <TableHead className="text-end">{t('actions')}</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredEmployers.map((employer) => (
+                        <TableRow key={employer._id}>
+                          <TableCell className="font-medium">{employer.name}</TableCell>
+                          <TableCell>{employer.phone}</TableCell>
+                          <TableCell>{employer.email || '-'}</TableCell>
+                          <TableCell>
+                            {employer.location ? (
+                              <Badge variant="secondary">
+                                {getCityLabel(employer.location, currentDir === 'rtl' ? 'ar' : 'en')}
+                              </Badge>
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={employer.status === 'active' ? 'default' : 'secondary'}>
+                              {t(employer.status)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-end">
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteUser(employer._id)}
+                            >
+                              {t('delete')}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {filteredEmployers.length === 0 && (
                     <div className="text-center py-12 text-muted-foreground">
                       {t('noData')}
                     </div>
