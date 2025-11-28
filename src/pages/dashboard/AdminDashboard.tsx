@@ -33,6 +33,9 @@ export default function AdminDashboard() {
   const { dir, language, toggleLanguage } = useLanguage();
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  
+  // Ensure dir is always defined to prevent minification issues
+  const currentDir = dir || 'rtl';
 
   const [companies, setCompanies] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -247,7 +250,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/20 to-background" dir={dir}>
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/20 to-background" dir={currentDir}>
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-card/80 backdrop-blur-sm shadow-sm">
         <div className="container mx-auto px-4 py-4">
@@ -541,16 +544,16 @@ export default function AdminDashboard() {
                               <span className="text-muted-foreground">{t('targetDisabilityTypes')}:</span>
                               <div className="flex flex-col gap-2">
                                 {job.disabilityTypes?.map((type: string, idx: number) => {
-                                  const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
+                                  const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
                                   return (
                                     <div key={idx} className="p-2 bg-muted/50 rounded border">
                                       <div className="flex flex-col gap-1">
                                         <span className="font-medium text-sm">
-                                          {disabilityType ? (dir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                          {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
                                         </span>
                                         {disabilityType && (
                                           <span className="text-xs text-muted-foreground">
-                                            {dir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
+                                            {currentDir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
                                           </span>
                                         )}
                                       </div>

@@ -17,10 +17,13 @@ import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
 
 export default function UserRegister() {
   const { t } = useTranslation();
-  const { language } = useLanguage();
+  const { dir } = useLanguage();
   const navigate = useNavigate();
   const { registerUser } = useAuth();
   const { toast } = useToast();
+  
+  // Ensure dir is always defined to prevent minification issues
+  const currentDir = dir || 'rtl';
 
   const [formData, setFormData] = useState({
     name: '',
@@ -97,7 +100,7 @@ export default function UserRegister() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" dir={currentDir}>
       <Navbar />
       <main className="flex-1 flex items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md">
@@ -149,7 +152,7 @@ export default function UserRegister() {
                     <SelectValue placeholder={t('selectDisabilityType')}>
                       {formData.disabilityType && (() => {
                         const selected = DISABILITY_TYPES.find(t => t.value === formData.disabilityType);
-                        return selected ? (dir === 'rtl' ? selected.labelAr : selected.labelEn) : formData.disabilityType;
+                        return selected ? (currentDir === 'rtl' ? selected.labelAr : selected.labelEn) : formData.disabilityType;
                       })()}
                     </SelectValue>
                   </SelectTrigger>
@@ -157,9 +160,9 @@ export default function UserRegister() {
                     {DISABILITY_TYPES.map((type) => (
                       <SelectItem key={type.value} value={type.value}>
                         <div className="flex flex-col gap-1 py-1">
-                          <span className="font-medium">{dir === 'rtl' ? type.labelAr : type.labelEn}</span>
+                          <span className="font-medium">{currentDir === 'rtl' ? type.labelAr : type.labelEn}</span>
                           <span className="text-xs text-muted-foreground">
-                            {dir === 'rtl' ? type.descriptionAr : type.descriptionEn}
+                            {currentDir === 'rtl' ? type.descriptionAr : type.descriptionEn}
                           </span>
                         </div>
                       </SelectItem>

@@ -42,6 +42,9 @@ export default function CompanyDashboard() {
   const { t } = useTranslation();
   const { dir } = useLanguage();
   const { user, company, logout } = useAuth();
+  
+  // Ensure dir is always defined to prevent minification issues
+  const currentDir = dir || 'rtl';
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -203,7 +206,7 @@ export default function CompanyDashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen" dir={dir}>
+    <div className="flex flex-col min-h-screen" dir={currentDir}>
       <Navbar />
       <main className="flex-1 bg-gradient-to-br from-background via-muted/20 to-background">
         <div className="container mx-auto px-4 py-8">
@@ -380,9 +383,9 @@ export default function CompanyDashboard() {
                                   />
                                   <Label htmlFor={`disability-${type.value}`} className="text-sm cursor-pointer flex-1">
                                     <div className="flex flex-col">
-                                      <span className="font-medium">{dir === 'rtl' ? type.labelAr : type.labelEn}</span>
+                                      <span className="font-medium">{currentDir === 'rtl' ? type.labelAr : type.labelEn}</span>
                                       <span className="text-xs text-muted-foreground">
-                                        {dir === 'rtl' ? type.descriptionAr : type.descriptionEn}
+                                        {currentDir === 'rtl' ? type.descriptionAr : type.descriptionEn}
                                       </span>
                                     </div>
                                   </Label>

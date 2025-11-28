@@ -22,6 +22,9 @@ export default function JobDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { dir } = useLanguage();
+  
+  // Ensure dir is always defined to prevent minification issues
+  const currentDir = dir || 'rtl';
 
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -170,16 +173,16 @@ export default function JobDetail() {
                   <h3 className="text-xl font-semibold">{t('targetDisabilityTypes')}</h3>
                   <div className="flex flex-col gap-2">
                     {job.disabilityTypes.map((type: string, idx: number) => {
-                      const disabilityType = getDisabilityType(type, dir === 'rtl' ? 'ar' : 'en');
+                      const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
                       return (
                         <div key={idx} className="p-3 bg-muted/50 rounded-lg border">
                           <div className="flex flex-col gap-1">
                             <span className="font-medium">
-                              {disabilityType ? (dir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                              {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
                             </span>
                             {disabilityType && (
                               <span className="text-sm text-muted-foreground">
-                                {dir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
+                                {currentDir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
                               </span>
                             )}
                           </div>
