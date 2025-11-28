@@ -26,28 +26,57 @@ const Index = () => {
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative py-20 md:py-32 bg-gradient-hero overflow-hidden">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6bTAtMTBjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6bTAgMTBjMC0yLjIxIDEuNzktNCA0LTRzNCAxLjc5IDQgNC0xLjc5IDQtNCA0LTQtMS43OS00LTR6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-10" />
+        <section className="relative min-h-[85vh] flex items-center justify-center bg-gradient-to-br from-primary via-primary/95 to-primary/90 overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[length:50px_50px]" />
+          </div>
+          
+          {/* Decorative Elements */}
+          <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+          
           <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-4xl mx-auto text-center flex flex-col gap-8">
-              <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
-                {t('heroTitle')}
-              </h1>
-              <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
-                {t('heroSubtitle')}
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="max-w-5xl mx-auto text-center flex flex-col gap-10">
+              {/* Main Heading */}
+              <div className="flex flex-col gap-6">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[1.1] tracking-tight">
+                  {t('heroTitle')}
+                </h1>
+                <p className="text-xl md:text-2xl lg:text-3xl text-white/90 leading-relaxed max-w-3xl mx-auto font-light mt-4 md:mt-6 lg:mt-8">
+                  {t('heroSubtitle')}
+                </p>
+              </div>
+              
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
                 <Link to="/register" className="w-full sm:w-auto">
                   <Button 
                     size="lg" 
-                    className="w-full sm:w-auto h-14 px-8 text-lg bg-white text-primary hover:bg-white/90 shadow-xl"
+                    className="w-full sm:w-auto h-16 px-10 text-lg bg-white text-primary hover:bg-white/95 shadow-2xl hover:shadow-3xl transition-all duration-300 font-semibold rounded-xl"
                   >
-                    <Users className="h-5 w-5" />
+                    <Users className="h-5 w-5 me-2" />
                     {t('register')}
+                  </Button>
+                </Link>
+                <Link to="/login" className="w-full sm:w-auto">
+                  <Button 
+                    size="lg" 
+                    variant="outline"
+                    className="w-full sm:w-auto h-16 px-10 text-lg bg-transparent border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 shadow-xl transition-all duration-300 font-semibold rounded-xl backdrop-blur-sm"
+                  >
+                    {t('login')}
                   </Button>
                 </Link>
               </div>
             </div>
+          </div>
+          
+          {/* Bottom Wave */}
+          <div className="absolute bottom-0 left-0 right-0">
+            <svg className="w-full h-20 fill-background" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,0 C150,80 350,80 600,40 C850,0 1050,0 1200,40 L1200,120 L0,120 Z"></path>
+            </svg>
           </div>
         </section>
 
