@@ -14,6 +14,7 @@ import { Footer } from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { FileText } from 'lucide-react';
 import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { SAUDI_CITIES } from '@/constants/saudiCities';
 
 export default function UserRegister() {
   const { t } = useTranslation();
@@ -32,6 +33,7 @@ export default function UserRegister() {
     password: '',
     confirmPassword: '',
     disabilityType: '',
+    location: '',
     cvFile: null as File | null,
   });
   const [loading, setLoading] = useState(false);
@@ -53,6 +55,15 @@ export default function UserRegister() {
       toast({
         title: t('error'),
         description: t('requiredField'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!formData.location) {
+      toast({
+        title: t('error'),
+        description: 'Please select your location',
         variant: 'destructive',
       });
       return;
@@ -80,6 +91,7 @@ export default function UserRegister() {
         email: formData.email || undefined,
         password: formData.password,
         disabilityType: formData.disabilityType,
+        location: formData.location,
         cvUrl: uploadResult.url,
       });
       toast({
@@ -165,6 +177,30 @@ export default function UserRegister() {
                             {currentDir === 'rtl' ? type.descriptionAr : type.descriptionEn}
                           </span>
                         </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="location">{currentDir === 'rtl' ? 'الموقع' : 'Location'} <span className="text-destructive">*</span></Label>
+                <Select
+                  value={formData.location}
+                  onValueChange={(value) => setFormData({ ...formData, location: value })}
+                >
+                  <SelectTrigger id="location" className="h-12">
+                    <SelectValue placeholder={currentDir === 'rtl' ? 'اختر المدينة' : 'Select City'}>
+                      {formData.location && (() => {
+                        const selected = SAUDI_CITIES.find(c => c.value === formData.location);
+                        return selected ? (currentDir === 'rtl' ? selected.labelAr : selected.labelEn) : formData.location;
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SAUDI_CITIES.map((city) => (
+                      <SelectItem key={city.value} value={city.value}>
+                        {currentDir === 'rtl' ? city.labelAr : city.labelEn}
                       </SelectItem>
                     ))}
                   </SelectContent>

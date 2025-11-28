@@ -21,10 +21,10 @@ const generateToken = (userId) => {
 // Register User (Job Seeker)
 router.post('/register-user', async (req, res) => {
   try {
-    const { name, phone, email, password, disabilityType, cvUrl } = req.body;
+    const { name, phone, email, password, disabilityType, cvUrl, location } = req.body;
 
-    if (!name || !phone || !password || !disabilityType || !cvUrl) {
-      return res.status(400).json({ error: 'Missing required fields (name, phone, password, disabilityType, cvUrl)' });
+    if (!name || !phone || !password || !disabilityType || !cvUrl || !location) {
+      return res.status(400).json({ error: 'Missing required fields (name, phone, password, disabilityType, cvUrl, location)' });
     }
 
     // Check if user exists
@@ -42,6 +42,7 @@ router.post('/register-user', async (req, res) => {
       passwordHash: password, // Will be hashed by pre-save hook
       disabilityType,
       cvUrl, // CV saved during registration
+      location,
       status: 'active'
     });
 
@@ -79,11 +80,12 @@ router.post('/register-company', async (req, res) => {
       crNumber, 
       crDocUrl, 
       mapsUrl, 
-      mowaamaDocUrl 
+      mowaamaDocUrl,
+      location
     } = req.body;
 
-    if (!name || !phone || !email || !password || !crNumber || !crDocUrl || !mapsUrl) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!name || !phone || !email || !password || !crNumber || !crDocUrl || !mapsUrl || !location) {
+      return res.status(400).json({ error: 'Missing required fields (including location)' });
     }
 
     // Check if user exists
@@ -99,6 +101,7 @@ router.post('/register-company', async (req, res) => {
       phone,
       email,
       passwordHash: password,
+      location,
       status: 'active'
     });
 
@@ -114,6 +117,7 @@ router.post('/register-company', async (req, res) => {
       crDocUrl,
       mapsUrl,
       mowaamaDocUrl: mowaamaDocUrl || null,
+      location,
       approvalStatus: 'pending'
     });
 
@@ -187,7 +191,9 @@ router.post('/login', async (req, res) => {
         phone: user.phone,
         email: user.email,
         role: user.role,
-        disabilityType: user.disabilityType
+        disabilityType: user.disabilityType,
+        location: user.location,
+        cvUrl: user.cvUrl
       },
       company: company ? {
         id: company._id,
@@ -218,6 +224,7 @@ router.get('/me', authenticate, async (req, res) => {
         email: user.email,
         role: user.role,
         disabilityType: user.disabilityType,
+        location: user.location,
         cvUrl: user.cvUrl
       },
       company: company ? {

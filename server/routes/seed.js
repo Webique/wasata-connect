@@ -49,6 +49,7 @@ router.post('/', async (req, res) => {
       phone: '0500000000',
       email: 'admin@wasata.com',
       passwordHash: 'admin123', // Will be hashed by pre-save hook
+      location: 'riyadh',
       status: 'active'
     });
     await admin.save();
@@ -57,6 +58,7 @@ router.post('/', async (req, res) => {
     // Create Test Users (Job Seekers)
     console.log('👥 Creating test users...');
     const users = [];
+    const locations = ['riyadh', 'jeddah', 'dammam'];
     for (let i = 1; i <= 3; i++) {
       const user = new User({
         role: 'user',
@@ -65,12 +67,13 @@ router.post('/', async (req, res) => {
         email: `seeker${i}@test.com`,
         passwordHash: 'password123',
         disabilityType: DISABILITY_TYPES[i % DISABILITY_TYPES.length],
+        location: locations[i - 1],
         cvUrl: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'dummy-cloud'}/raw/upload/v1/wasata-connect/dummy-cv-${i}.pdf`,
         status: 'active'
       });
       await user.save();
       users.push(user);
-      console.log(`✅ User ${i} created - Phone: ${user.phone}, Email: ${user.email}, Password: password123`);
+      console.log(`✅ User ${i} created - Phone: ${user.phone}, Email: ${user.email}, Password: password123, Location: ${user.location}`);
     }
 
     // Create Companies
@@ -83,6 +86,7 @@ router.post('/', async (req, res) => {
       phone: '0501000000',
       email: 'approved@company.com',
       passwordHash: 'password123',
+      location: 'riyadh',
       status: 'active'
     });
     await approvedCompanyOwner.save();
@@ -96,6 +100,7 @@ router.post('/', async (req, res) => {
       crNumber: 'CR123456',
       crDocUrl: '/uploads/dummy-cr.pdf',
       mowaamaDocUrl: '/uploads/dummy-mowaama.pdf',
+      location: 'riyadh',
       approvalStatus: 'approved'
     });
     await approvedCompany.save();
@@ -108,6 +113,7 @@ router.post('/', async (req, res) => {
       phone: '0502000000',
       email: 'pending@company.com',
       passwordHash: 'password123',
+      location: 'jeddah',
       status: 'active'
     });
     await pendingCompanyOwner.save();
@@ -117,9 +123,10 @@ router.post('/', async (req, res) => {
       name: 'شركة قيد الانتظار',
       phone: '0502000000',
       email: 'pending@company.com',
-      mapsUrl: 'https://maps.google.com/?q=riyadh',
+      mapsUrl: 'https://maps.google.com/?q=jeddah',
       crNumber: 'CR789012',
       crDocUrl: '/uploads/dummy-cr2.pdf',
+      location: 'jeddah',
       approvalStatus: 'pending'
     });
     await pendingCompany.save();

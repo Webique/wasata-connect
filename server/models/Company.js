@@ -41,6 +41,11 @@ const companySchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  location: {
+    type: String,
+    default: null
+    // City/location in Saudi Arabia (e.g., 'riyadh', 'jeddah')
+  },
   approvalStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

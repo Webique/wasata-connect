@@ -8,6 +8,8 @@ interface User {
   email?: string;
   role: 'user' | 'company' | 'admin';
   disabilityType?: string;
+  location?: string;
+  cvUrl?: string;
 }
 
 interface Company {
@@ -29,6 +31,7 @@ interface AuthContextType {
     email?: string;
     password: string;
     disabilityType: string;
+    location: string;
     cvUrl: string;
   }) => Promise<void>;
   registerCompany: (data: {
@@ -40,6 +43,7 @@ interface AuthContextType {
     crDocUrl: string;
     mapsUrl: string;
     mowaamaDocUrl?: string;
+    location: string;
   }) => Promise<void>;
   refreshUser: () => Promise<void>;
 }

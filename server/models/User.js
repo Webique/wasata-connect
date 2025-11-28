@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
     default: null
     // CV/resume URL - saved during registration for job seekers
   },
+  location: {
+    type: String,
+    default: null
+    // City/location in Saudi Arabia (e.g., 'riyadh', 'jeddah')
+  },
   status: {
     type: String,
     enum: ['active', 'disabled'],

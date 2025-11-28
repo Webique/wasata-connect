@@ -10,12 +10,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { SAUDI_CITIES } from '@/constants/saudiCities';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function CompanyRegister() {
   const { t } = useTranslation();
+  const { dir } = useLanguage();
   const navigate = useNavigate();
   const { registerCompany } = useAuth();
   const { toast } = useToast();
+  
+  // Ensure dir is always defined to prevent minification issues
+  const currentDir = dir || 'rtl';
 
   const [formData, setFormData] = useState({
     name: '',
@@ -27,6 +34,7 @@ export default function CompanyRegister() {
     crDocUrl: '',
     mapsUrl: '',
     mowaamaDocUrl: '',
+    location: '',
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -72,6 +80,15 @@ export default function CompanyRegister() {
       return;
     }
 
+    if (!formData.location) {
+      toast({
+        title: t('error'),
+        description: 'Please select your location',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       await registerCompany({
@@ -83,6 +100,7 @@ export default function CompanyRegister() {
         crDocUrl: formData.crDocUrl,
         mapsUrl: formData.mapsUrl,
         mowaamaDocUrl: formData.mowaamaDocUrl || undefined,
+        location: formData.location,
       });
       toast({
         title: t('register'),
@@ -170,6 +188,30 @@ export default function CompanyRegister() {
                 {formData.crDocUrl && (
                   <p className="text-sm text-muted-foreground">✓ Document uploaded</p>
                 )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="location">{currentDir === 'rtl' ? 'الموقع' : 'Location'} <span className="text-destructive">*</span></Label>
+                <Select
+                  value={formData.location}
+                  onValueChange={(value) => setFormData({ ...formData, location: value })}
+                >
+                  <SelectTrigger id="location" className="h-12">
+                    <SelectValue placeholder={currentDir === 'rtl' ? 'اختر المدينة' : 'Select City'}>
+                      {formData.location && (() => {
+                        const selected = SAUDI_CITIES.find(c => c.value === formData.location);
+                        return selected ? (currentDir === 'rtl' ? selected.labelAr : selected.labelEn) : formData.location;
+                      })()}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SAUDI_CITIES.map((city) => (
+                      <SelectItem key={city.value} value={city.value}>
+                        {currentDir === 'rtl' ? city.labelAr : city.labelEn}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex flex-col gap-2">

@@ -58,6 +58,7 @@ class ApiClient {
     email?: string;
     password: string;
     disabilityType: string;
+    location: string;
     cvUrl: string;
   }) {
     return this.request<{ token: string; user: any }>('/auth/register-user', {
@@ -75,6 +76,7 @@ class ApiClient {
     crDocUrl: string;
     mapsUrl: string;
     mowaamaDocUrl?: string;
+    location: string;
   }) {
     return this.request<{ token: string; user: any; company: any }>(
       '/auth/register-company',
