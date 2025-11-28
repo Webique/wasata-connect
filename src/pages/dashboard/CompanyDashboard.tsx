@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -54,6 +55,7 @@ export default function CompanyDashboard() {
   const [loading, setLoading] = useState(true);
   const [jobDialogOpen, setJobDialogOpen] = useState(false);
   const [applicantsDialogOpen, setApplicantsDialogOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     workingHours: '',
@@ -224,10 +226,43 @@ export default function CompanyDashboard() {
               </div>
               <div className="flex items-center gap-4">
                 {getStatusBadge(company.approvalStatus)}
-                <Button onClick={logout} variant="outline" className="flex items-center gap-2">
-                  <LogOut className="h-4 w-4" />
-                  {t('logout')}
-                </Button>
+                <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="flex items-center gap-2">
+                      <LogOut className="h-4 w-4" />
+                      {t('logout')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="max-w-md" dir={currentDir}>
+                    <AlertDialogHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center border-2 border-secondary/20">
+                          <LogOut className="h-6 w-6 text-secondary" />
+                        </div>
+                        <AlertDialogTitle className="text-2xl font-bold">
+                          {t('confirmLogout')}
+                        </AlertDialogTitle>
+                      </div>
+                      <AlertDialogDescription className="text-base pt-2">
+                        {t('logoutMessage')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex gap-3 sm:gap-0" dir={currentDir}>
+                      <AlertDialogCancel className="mt-0">
+                        {t('cancel')}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          logout();
+                          setLogoutDialogOpen(false);
+                        }}
+                        className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                      >
+                        {t('logout')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
 

@@ -41,6 +41,16 @@ class ApiClient {
     });
 
     if (!response.ok) {
+      // Handle 401 Unauthorized - token expired or invalid
+      if (response.status === 401) {
+        // Clear token from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('company');
+        // Dispatch custom event to notify auth context
+        window.dispatchEvent(new CustomEvent('auth:logout'));
+      }
+
       const error: ApiError = await response.json().catch(() => ({
         error: `Request failed with status ${response.status}`,
       }));

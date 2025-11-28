@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { DISABILITY_TYPES, getDisabilityType } from '@/constants/disabilityTypes';
@@ -52,6 +53,7 @@ export default function UserDashboard() {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [uploadingCV, setUploadingCV] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
@@ -192,10 +194,43 @@ export default function UserDashboard() {
                   </p>
                 </div>
               </div>
-              <Button onClick={logout} variant="outline" className="flex items-center gap-2">
-                <LogOut className="h-4 w-4" />
-                {t('logout')}
-              </Button>
+              <AlertDialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <LogOut className="h-4 w-4" />
+                    {t('logout')}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-md" dir={currentDir}>
+                  <AlertDialogHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                        <LogOut className="h-6 w-6 text-primary" />
+                      </div>
+                      <AlertDialogTitle className="text-2xl font-bold">
+                        {t('confirmLogout')}
+                      </AlertDialogTitle>
+                    </div>
+                    <AlertDialogDescription className="text-base pt-2">
+                      {t('logoutMessage')}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex gap-3 sm:gap-0" dir={currentDir}>
+                    <AlertDialogCancel className="mt-0">
+                      {t('cancel')}
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        logout();
+                        setLogoutDialogOpen(false);
+                      }}
+                      className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    >
+                      {t('logout')}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             {/* Stats Cards */}

@@ -1,10 +1,20 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { api } from '@/lib/api';
+import { getDisabilityType } from '@/constants/disabilityTypes';
+import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { SAUDI_CITIES, getCityLabel } from '@/constants/saudiCities';
 import { 
   UserPlus, 
   Building2, 
@@ -13,12 +23,76 @@ import {
   CheckCircle2, 
   Shield,
   Briefcase,
-  Users
+  Users,
+  Search,
+  MapPin,
+  DollarSign,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 
 const Index = () => {
   const { t } = useTranslation();
-  const { language } = useLanguage();
+  const { language, dir } = useLanguage();
+  const navigate = useNavigate();
+  const currentDir = dir || 'rtl';
+  
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [disabilityFilter, setDisabilityFilter] = useState<string>('all');
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  const loadJobs = async () => {
+    try {
+      setLoading(true);
+      const jobsData = await api.getJobs();
+      setJobs(jobsData);
+    } catch (error) {
+      console.error('Failed to load jobs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredJobs = jobs.filter((job) => {
+    // Search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      if (
+        !job.title?.toLowerCase().includes(searchLower) &&
+        !job.qualification?.toLowerCase().includes(searchLower) &&
+        !job.companyId?.name?.toLowerCase().includes(searchLower) &&
+        !job.skills?.some((skill: string) => skill.toLowerCase().includes(searchLower))
+      ) {
+        return false;
+      }
+    }
+
+    // Location filter (filter by company location)
+    if (locationFilter !== 'all') {
+      // We need to check company location, but we don't have it in the job object
+      // For now, we'll skip location filtering on the frontend
+      // This would need backend support to filter by company location
+    }
+
+    // Disability type filter
+    if (disabilityFilter !== 'all') {
+      if (!job.disabilityTypes || !job.disabilityTypes.includes(disabilityFilter)) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  const handleApply = (jobId: string) => {
+    navigate(`/login/user?redirect=/jobs/${jobId}`);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -191,8 +265,173 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Available Jobs Section */}
+        <section className="py-20 bg-background" dir={currentDir}>
+          <div className="container mx-auto px-4">
+            <div className="max-w-7xl mx-auto flex flex-col gap-8">
+              <div className="text-center flex flex-col gap-4">
+                <h2 className="text-3xl md:text-4xl font-bold">
+                  {currentDir === 'rtl' ? 'الوظائف المتاحة' : 'Available Jobs'}
+                </h2>
+                <p className="text-xl text-muted-foreground">
+                  {currentDir === 'rtl' ? 'استعرض الوظائف من الشركات المعتمدة' : 'Browse jobs from verified companies'}
+                </p>
+              </div>
+
+              {/* Filters */}
+              <Card className="border-2">
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'البحث' : 'Search'}</Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder={currentDir === 'rtl' ? 'ابحث عن وظيفة...' : 'Search for a job...'}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{t('disabilityType')}</Label>
+                      <Select value={disabilityFilter} onValueChange={setDisabilityFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع الأنواع' : 'All Types'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع الأنواع' : 'All Types'}</SelectItem>
+                          {DISABILITY_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {currentDir === 'rtl' ? type.labelAr : type.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label className="text-sm">{currentDir === 'rtl' ? 'الموقع' : 'Location'}</Label>
+                      <Select value={locationFilter} onValueChange={setLocationFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">{currentDir === 'rtl' ? 'جميع المدن' : 'All Cities'}</SelectItem>
+                          {SAUDI_CITIES.map((city) => (
+                            <SelectItem key={city.value} value={city.value}>
+                              {currentDir === 'rtl' ? city.labelAr : city.labelEn}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Jobs Grid */}
+              {loading ? (
+                <div className="text-center py-16">
+                  <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50 animate-pulse" />
+                  <p className="text-lg font-medium text-muted-foreground">
+                    {currentDir === 'rtl' ? 'جاري التحميل...' : 'Loading...'}
+                  </p>
+                </div>
+              ) : filteredJobs.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredJobs.map((job) => (
+                    <Card key={job._id} className="border-2 hover:shadow-xl transition-all flex flex-col group">
+                      <CardHeader className="flex flex-col gap-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
+                            <CardDescription className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4" />
+                              {job.companyId?.name || t('company')}
+                            </CardDescription>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex flex-col gap-4 flex-1">
+                        <div className="flex flex-col gap-3 text-sm">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <DollarSign className="h-4 w-4" />
+                            <span className="font-semibold text-foreground">{job.minSalary} ر.س</span>
+                            <span>/ {t('month')}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>{job.workingHours}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Shield className="h-4 w-4" />
+                            <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>
+                          </div>
+                        </div>
+                        {job.disabilityTypes && job.disabilityTypes.length > 0 && (
+                          <div className="flex flex-col gap-2 pt-2 border-t">
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-primary" />
+                              <span className="text-sm font-medium text-muted-foreground">{t('targetDisabilityTypes')}:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {job.disabilityTypes.slice(0, 3).map((type: string, idx: number) => {
+                                const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                                return (
+                                  <Badge key={idx} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary">
+                                    {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                  </Badge>
+                                );
+                              })}
+                              {job.disabilityTypes.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{job.disabilityTypes.length - 3}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-2 pt-2 border-t">
+                          {job.skills?.slice(0, 3).map((skill: string, idx: number) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
+                          {job.skills?.length > 3 && (
+                            <Badge variant="secondary" className="text-xs">
+                              +{job.skills.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          onClick={() => handleApply(job._id)}
+                          className="w-full mt-auto bg-primary hover:bg-primary/90"
+                        >
+                          {currentDir === 'rtl' ? 'تقديم' : 'Apply'}
+                          <ArrowRight className="h-4 w-4 ms-2" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Briefcase className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                  <p className="text-lg font-medium text-muted-foreground">
+                    {currentDir === 'rtl' ? 'لا توجد وظائف متاحة' : 'No jobs available'}
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {currentDir === 'rtl' ? 'جرب البحث بمعايير مختلفة' : 'Try different search criteria'}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
         {/* Trust Section */}
-        <section className="py-20 bg-background">
+        <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <Card className="border-2 bg-card">
