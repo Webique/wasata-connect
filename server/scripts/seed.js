@@ -56,6 +56,7 @@ async function seed() {
     // Create Test Users (Job Seekers)
     console.log('👥 Creating test users...');
     const users = [];
+    const userLocations = ['riyadh', 'jeddah', 'dammam'];
     for (let i = 1; i <= 3; i++) {
       const user = new User({
         role: 'user',
@@ -64,6 +65,7 @@ async function seed() {
         email: `seeker${i}@test.com`,
         passwordHash: 'password123',
         disabilityType: DISABILITY_TYPES[i % DISABILITY_TYPES.length],
+        location: userLocations[i - 1],
         cvUrl: `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME || 'dummy-cloud'}/raw/upload/v1/wasata-connect/dummy-cv-${i}.pdf`,
         status: 'active'
       });
@@ -95,6 +97,7 @@ async function seed() {
       crNumber: 'CR123456',
       crDocUrl: '/uploads/dummy-cr.pdf',
       mowaamaDocUrl: '/uploads/dummy-mowaama.pdf',
+      location: 'riyadh',
       approvalStatus: 'approved'
     });
     await approvedCompany.save();
@@ -119,6 +122,7 @@ async function seed() {
       mapsUrl: 'https://maps.google.com/?q=riyadh',
       crNumber: 'CR789012',
       crDocUrl: '/uploads/dummy-cr2.pdf',
+      location: 'jeddah',
       approvalStatus: 'pending'
     });
     await pendingCompany.save();
