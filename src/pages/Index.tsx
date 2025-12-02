@@ -467,7 +467,7 @@ const Index = () => {
               <Card className="border-2 shadow-xl overflow-hidden">
                 <div className="grid md:grid-cols-2 gap-0">
                   {/* Image Section */}
-                  <div className="relative bg-gradient-to-br from-primary/10 to-secondary/10 p-8 flex items-center justify-center min-h-[400px]">
+                  <div className="relative bg-black p-8 flex items-center justify-center min-h-[400px]">
                     <img 
                       src="/images/achievement.png" 
                       alt={t('achievementAwardTitle')}
