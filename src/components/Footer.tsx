@@ -19,8 +19,6 @@ import {
   Award,
   Globe
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 export const Footer = () => {
@@ -263,29 +261,6 @@ export const Footer = () => {
                       {currentDir === 'rtl' ? 'المملكة العربية السعودية' : 'Kingdom of Saudi Arabia'}
                     </span>
                   </div>
-                </div>
-              </div>
-
-              {/* Newsletter Signup */}
-              <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
-                <p className="text-sm font-semibold">
-                  {currentDir === 'rtl' ? 'اشترك في النشرة الإخبارية' : 'Newsletter'}
-                </p>
-                <div className="flex gap-2">
-                  <Input 
-                    type="email" 
-                    placeholder={currentDir === 'rtl' ? 'بريدك الإلكتروني' : 'Your email'}
-                    className="h-10 text-sm"
-                  />
-                  <Button 
-                    size="sm" 
-                    className="h-10 px-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
-                  >
-                    <ArrowRight className={cn(
-                      "h-4 w-4",
-                      currentDir === 'rtl' ? 'rotate-180' : ''
-                    )} />
-                  </Button>
                 </div>
               </div>
             </div>
