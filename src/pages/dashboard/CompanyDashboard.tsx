@@ -848,11 +848,12 @@ export default function CompanyDashboard() {
                                 value={app.status}
                                 onValueChange={(value) => handleUpdateApplicationStatus(app._id, value)}
                               >
-                                <SelectTrigger className="w-[160px] h-9">
+                                <SelectTrigger className="w-[180px] h-9">
                                   <SelectValue>
                                     <Badge 
                                       variant={
-                                        app.status === 'submitted' ? 'default' :
+                                        app.status === 'submitted' ? 'secondary' :
+                                        app.status === 'reviewed' ? 'default' :
                                         app.status === 'shortlisted' ? 'default' :
                                         app.status === 'rejected' ? 'destructive' : 'secondary'
                                       }
@@ -864,16 +865,36 @@ export default function CompanyDashboard() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="submitted">
-                                    {t('submitted')}
+                                    <div className="flex flex-col">
+                                      <span>{t('submitted')}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {currentDir === 'rtl' ? 'جديد - يحتاج مراجعة' : 'New - Needs Review'}
+                                      </span>
+                                    </div>
                                   </SelectItem>
                                   <SelectItem value="reviewed">
-                                    {t('reviewed')}
+                                    <div className="flex flex-col">
+                                      <span>{t('reviewed')}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {currentDir === 'rtl' ? 'قيد المراجعة' : 'Under Review'}
+                                      </span>
+                                    </div>
                                   </SelectItem>
                                   <SelectItem value="shortlisted">
-                                    {t('shortlisted')}
+                                    <div className="flex flex-col">
+                                      <span>{t('shortlisted')}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {currentDir === 'rtl' ? 'مقبول ومختار' : 'Accepted & Selected'}
+                                      </span>
+                                    </div>
                                   </SelectItem>
                                   <SelectItem value="rejected">
-                                    {t('rejected')}
+                                    <div className="flex flex-col">
+                                      <span>{t('rejected')}</span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {currentDir === 'rtl' ? 'تم الرفض' : 'Not Selected'}
+                                      </span>
+                                    </div>
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
