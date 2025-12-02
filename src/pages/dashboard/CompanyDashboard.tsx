@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { SAUDI_CITIES } from '@/constants/saudiCities';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -65,6 +66,7 @@ export default function CompanyDashboard() {
     minSalary: '',
     healthInsurance: false,
     natureOfWork: '',
+    location: '',
     disabilityTypes: [] as string[],
   });
 
@@ -121,6 +123,14 @@ export default function CompanyDashboard() {
       });
       return;
     }
+    if (!formData.location) {
+      toast({
+        title: t('error'),
+        description: currentDir === 'rtl' ? 'يرجى اختيار الموقع' : 'Please select location',
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
       await api.createJob({
         title: formData.title,
@@ -130,6 +140,7 @@ export default function CompanyDashboard() {
         minSalary: Number(formData.minSalary),
         healthInsurance: formData.healthInsurance,
         natureOfWork: formData.natureOfWork,
+        location: formData.location,
         disabilityTypes: formData.disabilityTypes,
       });
       toast({
@@ -145,6 +156,7 @@ export default function CompanyDashboard() {
         minSalary: '',
         healthInsurance: false,
         natureOfWork: '',
+        location: '',
         disabilityTypes: [],
       });
       loadJobs();
@@ -164,6 +176,26 @@ export default function CompanyDashboard() {
       toast({
         title: t('delete'),
         description: t('deleteSuccess'),
+      });
+      loadJobs();
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message || t('somethingWentWrong'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleToggleJobStatus = async (jobId: string, currentStatus: string) => {
+    try {
+      const newStatus = currentStatus === 'active' ? 'closed' : 'active';
+      await api.updateJob(jobId, { status: newStatus });
+      toast({
+        title: t('save'),
+        description: currentDir === 'rtl' 
+          ? `تم تغيير حالة الوظيفة إلى ${newStatus === 'active' ? 'نشط' : 'مغلق'}`
+          : `Job status changed to ${newStatus === 'active' ? 'Active' : 'Closed'}`,
       });
       loadJobs();
     } catch (error: any) {
@@ -420,6 +452,21 @@ export default function CompanyDashboard() {
                             </Select>
                           </div>
                           <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{currentDir === 'rtl' ? 'الموقع' : 'Location'} <span className="text-destructive">*</span></Label>
+                            <Select value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}>
+                              <SelectTrigger className="h-12">
+                                <SelectValue placeholder={currentDir === 'rtl' ? 'اختر الموقع' : 'Select location'} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {SAUDI_CITIES.map((city) => (
+                                  <SelectItem key={city.value} value={city.value}>
+                                    {currentDir === 'rtl' ? city.labelAr : city.labelEn}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex flex-col gap-2">
                             <Label className="text-sm font-medium">{t('targetDisabilityTypes')} <span className="text-destructive">*</span></Label>
                             <div className="flex flex-col gap-2 max-h-48 overflow-y-auto p-3 border rounded-lg bg-muted/30">
                               {DISABILITY_TYPES.map((type) => (
@@ -495,9 +542,36 @@ export default function CompanyDashboard() {
                                     {job.minSalary} ر.س
                                   </CardDescription>
                                 </div>
-                                <Badge variant={job.status === 'active' ? 'default' : 'secondary'}>
-                                  {t(job.status)}
-                                </Badge>
+                                <div className="flex flex-col gap-2 items-end">
+                                  {/* Approval Status Badge */}
+                                  <Badge 
+                                    variant={
+                                      job.approvalStatus === 'approved' ? 'default' :
+                                      job.approvalStatus === 'rejected' ? 'destructive' :
+                                      'secondary'
+                                    }
+                                    className="text-xs"
+                                  >
+                                    {job.approvalStatus === 'approved' 
+                                      ? (currentDir === 'rtl' ? 'موافق عليه' : 'Approved')
+                                      : job.approvalStatus === 'rejected'
+                                      ? (currentDir === 'rtl' ? 'مرفوض' : 'Declined')
+                                      : (currentDir === 'rtl' ? 'قيد الانتظار' : 'Pending')
+                                    }
+                                  </Badge>
+                                  {/* Job Status Badge - Only show if approved */}
+                                  {job.approvalStatus === 'approved' && (
+                                    <Badge 
+                                      variant={job.status === 'active' ? 'default' : 'secondary'}
+                                      className="text-xs"
+                                    >
+                                      {job.status === 'active' 
+                                        ? (currentDir === 'rtl' ? 'نشط' : 'Active')
+                                        : (currentDir === 'rtl' ? 'مغلق' : 'Closed')
+                                      }
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </CardHeader>
                             <CardContent className="flex flex-col gap-4">
@@ -524,22 +598,38 @@ export default function CompanyDashboard() {
                                   <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>
                                 </div>
                               </div>
-                              <div className="flex gap-2 pt-4 border-t">
-                                <Button
-                                  variant="outline"
-                                  onClick={() => loadApplicants(job._id)}
-                                  className="flex-1 flex items-center gap-2"
-                                >
-                                  <Users className="h-4 w-4" />
-                                  {t('viewApplicants')}
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="icon"
-                                  onClick={() => handleDeleteJob(job._id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
+                              <div className="flex flex-col gap-2 pt-4 border-t">
+                                {/* Toggle Job Status - Only for approved jobs */}
+                                {job.approvalStatus === 'approved' && (
+                                  <Button
+                                    variant={job.status === 'active' ? 'secondary' : 'outline'}
+                                    size="sm"
+                                    onClick={() => handleToggleJobStatus(job._id, job.status)}
+                                    className="w-full"
+                                  >
+                                    {job.status === 'active' 
+                                      ? (currentDir === 'rtl' ? 'إغلاق الوظيفة' : 'Close Job')
+                                      : (currentDir === 'rtl' ? 'تفعيل الوظيفة' : 'Activate Job')
+                                    }
+                                  </Button>
+                                )}
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => loadApplicants(job._id)}
+                                    className="flex-1 flex items-center gap-2"
+                                  >
+                                    <Users className="h-4 w-4" />
+                                    {t('viewApplicants')}
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    onClick={() => handleDeleteJob(job._id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </div>
                             </CardContent>
                           </Card>

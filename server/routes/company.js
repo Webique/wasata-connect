@@ -53,10 +53,10 @@ router.post('/jobs', authenticate, requireRole('company'), async (req, res) => {
       });
     }
 
-    const { title, workingHours, qualification, skills, minSalary, healthInsurance, natureOfWork, disabilityTypes } = req.body;
+    const { title, workingHours, qualification, skills, minSalary, healthInsurance, natureOfWork, location, disabilityTypes } = req.body;
 
-    if (!title || !workingHours || !qualification || !minSalary || !natureOfWork || !disabilityTypes || disabilityTypes.length === 0) {
-      return res.status(400).json({ error: 'Missing required fields (title, workingHours, qualification, minSalary, natureOfWork, disabilityTypes)' });
+    if (!title || !workingHours || !qualification || !minSalary || !natureOfWork || !location || !disabilityTypes || disabilityTypes.length === 0) {
+      return res.status(400).json({ error: 'Missing required fields (title, workingHours, qualification, minSalary, natureOfWork, location, disabilityTypes)' });
     }
 
     // Convert skills string to array if needed
@@ -82,6 +82,7 @@ router.post('/jobs', authenticate, requireRole('company'), async (req, res) => {
       minSalary: Number(minSalary),
       healthInsurance: Boolean(healthInsurance),
       natureOfWork,
+      location,
       disabilityTypes: disabilityTypesArray,
       approvalStatus: 'pending', // Jobs need admin approval
       status: 'active'

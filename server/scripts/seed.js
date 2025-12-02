@@ -135,6 +135,18 @@ async function seed() {
       'مدير مشروع'
     ];
 
+    // Nature of work options
+    const natureOfWorkOptions = [
+      'full-time',
+      'flexible-hours',
+      'remote-work',
+      'part-time',
+      'social-investment'
+    ];
+
+    // Location options
+    const locations = ['riyadh', 'jeddah', 'dammam', 'mecca', 'medina'];
+
     // Create mix of approved and pending jobs
     for (let i = 0; i < 5; i++) {
       const job = new Job({
@@ -145,6 +157,8 @@ async function seed() {
         skills: ['مهارات التواصل', 'العمل الجماعي', 'الالتزام بالمواعيد'],
         minSalary: 5000 + (i * 1000),
         healthInsurance: i % 2 === 0,
+        natureOfWork: natureOfWorkOptions[i % natureOfWorkOptions.length],
+        location: locations[i % locations.length],
         disabilityTypes: [
           DISABILITY_TYPES[i % DISABILITY_TYPES.length],
           DISABILITY_TYPES[(i + 1) % DISABILITY_TYPES.length] // Add 2 disability types per job
@@ -154,7 +168,7 @@ async function seed() {
       });
       await job.save();
       jobs.push(job);
-      console.log(`✅ Job ${i + 1} created: ${job.title} (${job.approvalStatus})`);
+      console.log(`✅ Job ${i + 1} created: ${job.title} (${job.approvalStatus}, ${job.natureOfWork})`);
     }
 
     // Create Applications (only for approved jobs)

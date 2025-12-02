@@ -38,6 +38,11 @@ const jobSchema = new mongoose.Schema({
     enum: ['full-time', 'flexible-hours', 'remote-work', 'part-time', 'social-investment'],
     required: true
   },
+  location: {
+    type: String,
+    required: true,
+    trim: true
+  },
   disabilityTypes: {
     type: [String],
     default: []
