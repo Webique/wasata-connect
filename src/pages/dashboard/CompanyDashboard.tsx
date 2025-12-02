@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '@/lib/errorTranslations';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -105,7 +106,7 @@ export default function CompanyDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     } finally {
@@ -122,7 +123,7 @@ export default function CompanyDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -149,7 +150,7 @@ export default function CompanyDashboard() {
     if (!formData.location) {
       toast({
         title: t('error'),
-        description: currentDir === 'rtl' ? 'يرجى اختيار الموقع' : 'Please select location',
+        description: t('pleaseSelectJobLocation'),
         variant: 'destructive',
       });
       return;
@@ -207,7 +208,7 @@ export default function CompanyDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -225,7 +226,7 @@ export default function CompanyDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -245,7 +246,7 @@ export default function CompanyDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -267,7 +268,7 @@ export default function CompanyDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '@/lib/errorTranslations';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
@@ -45,7 +46,7 @@ export default function UserRegister() {
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: t('error'),
-        description: 'Passwords do not match',
+        description: t('passwordsDoNotMatch'),
         variant: 'destructive',
       });
       return;
@@ -63,7 +64,7 @@ export default function UserRegister() {
     if (!formData.location) {
       toast({
         title: t('error'),
-        description: 'Please select your location',
+        description: t('pleaseSelectLocation'),
         variant: 'destructive',
       });
       return;
@@ -96,13 +97,13 @@ export default function UserRegister() {
       });
       toast({
         title: t('register'),
-        description: 'Registration successful!',
+        description: t('registrationSuccessful'),
       });
       navigate('/dashboard/user');
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     } finally {

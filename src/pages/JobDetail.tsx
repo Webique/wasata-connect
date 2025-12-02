@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '@/lib/errorTranslations';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
@@ -43,7 +44,7 @@ export default function JobDetail() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     } finally {
@@ -58,14 +59,14 @@ export default function JobDetail() {
       });
       toast({
         title: t('applicationSubmitted'),
-        description: 'Your application has been submitted successfully using your saved CV',
+        description: t('applicationSubmittedSuccess'),
       });
       setApplyDialogOpen(false);
       navigate('/dashboard/user');
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }

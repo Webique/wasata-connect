@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '@/lib/errorTranslations';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
@@ -45,13 +46,13 @@ export default function CompanyRegister() {
       const result = await api.uploadFile(file);
       setFormData({ ...formData, [field]: result.url });
       toast({
-        title: 'Success',
-        description: 'File uploaded successfully',
+        title: t('success'),
+        description: t('fileUploadedSuccessfully'),
       });
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || 'Upload failed',
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     } finally {
@@ -65,7 +66,7 @@ export default function CompanyRegister() {
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: t('error'),
-        description: 'Passwords do not match',
+        description: t('passwordsDoNotMatch'),
         variant: 'destructive',
       });
       return;
@@ -74,7 +75,7 @@ export default function CompanyRegister() {
     if (!formData.crDocUrl) {
       toast({
         title: t('error'),
-        description: 'Please upload CR document',
+        description: t('pleaseUploadCRDocument'),
         variant: 'destructive',
       });
       return;
@@ -83,7 +84,7 @@ export default function CompanyRegister() {
     if (!formData.location) {
       toast({
         title: t('error'),
-        description: 'Please select your location',
+        description: t('pleaseSelectLocation'),
         variant: 'destructive',
       });
       return;
@@ -104,13 +105,13 @@ export default function CompanyRegister() {
       });
       toast({
         title: t('register'),
-        description: 'Registration successful! Awaiting admin approval.',
+        description: t('registrationSuccessfulAwaiting'),
       });
       navigate('/dashboard/company');
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     } finally {

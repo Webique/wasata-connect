@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '@/lib/errorTranslations';
 import { useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,13 +39,13 @@ export default function UserLogin() {
       );
       toast({
         title: t('login'),
-        description: 'Login successful!',
+        description: t('loginSuccessful'),
       });
       navigate('/dashboard/user');
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('invalidCredentials'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     } finally {

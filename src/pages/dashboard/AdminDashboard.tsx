@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '@/lib/errorTranslations';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
@@ -98,7 +99,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -111,7 +112,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -124,7 +125,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -137,7 +138,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -155,7 +156,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -172,7 +173,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -189,7 +190,7 @@ export default function AdminDashboard() {
     if (!rejectionReason.trim()) {
       toast({
         title: t('error'),
-        description: currentDir === 'rtl' ? 'يرجى إدخال سبب الرفض' : 'Please enter rejection reason',
+        description: t('pleaseEnterRejectionReason'),
         variant: 'destructive',
       });
       return;
@@ -207,7 +208,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -225,7 +226,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -244,7 +245,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
@@ -263,7 +264,7 @@ export default function AdminDashboard() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || t('somethingWentWrong'),
+        description: translateErrorMessage(error.message, t),
         variant: 'destructive',
       });
     }
