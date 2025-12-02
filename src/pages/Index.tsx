@@ -477,86 +477,178 @@ const Index = () => {
                 </div>
               </div>
 
-              <Card className="border-2 shadow-xl overflow-hidden">
-                <div className="grid md:grid-cols-2 gap-0">
-                  {/* Image Section */}
-                  <div className="relative bg-black p-8 flex items-center justify-center min-h-[400px]">
-                    <img 
-                      src="/images/achievement.png" 
-                      alt={t('achievementAwardTitle')}
-                      className="max-w-full h-auto object-contain drop-shadow-2xl"
-                    />
+              <div className="flex flex-col gap-8">
+                {/* First Achievement */}
+                <Card className="border-2 shadow-xl overflow-hidden">
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* Image Section */}
+                    <div className="relative bg-black p-8 flex items-center justify-center min-h-[400px]">
+                      <img 
+                        src="/images/achievement.png" 
+                        alt={t('achievementAwardTitle')}
+                        className="max-w-full h-auto object-contain drop-shadow-2xl"
+                      />
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-8 md:p-12 flex flex-col justify-center gap-6">
+                      <div className="flex flex-col gap-2">
+                        <div className="inline-block">
+                          <Badge variant="outline" className="text-sm mb-3 bg-primary/10 border-primary/30 text-primary">
+                            {t('achievementEdition')}
+                          </Badge>
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-bold leading-tight">
+                          {t('achievementAwardTitle')}
+                        </h3>
+                        <h4 className="text-xl md:text-2xl text-primary font-semibold">
+                          {t('achievementAwardSubtitle')}
+                        </h4>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {t('achievementPatronage')}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-4 pt-4 border-t">
+                        <p className="text-base leading-relaxed text-muted-foreground">
+                          {t('achievementDescription')}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-4 pt-4">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-primary" />
+                            <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الرؤية:' : 'Vision:'}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground ms-4">
+                            {t('achievementVision')}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-secondary" />
+                            <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الرسالة:' : 'Mission:'}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground ms-4">
+                            {t('achievementMission')}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-accent" />
+                            <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الأهداف:' : 'Goals:'}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground ms-4">
+                            {t('achievementGoals')}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4">
+                        <a 
+                          href="https://aazzm.org/excellency_award/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
+                        >
+                          <span>{t('achievementViewAward')}</span>
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </div>
+                    </div>
                   </div>
+                </Card>
 
-                  {/* Content Section */}
-                  <div className="p-8 md:p-12 flex flex-col justify-center gap-6">
-                    <div className="flex flex-col gap-2">
-                      <div className="inline-block">
-                        <Badge variant="outline" className="text-sm mb-3 bg-primary/10 border-primary/30 text-primary">
-                          {t('achievementEdition')}
-                        </Badge>
-                      </div>
-                      <h3 className="text-2xl md:text-3xl font-bold leading-tight">
-                        {t('achievementAwardTitle')}
-                      </h3>
-                      <h4 className="text-xl md:text-2xl text-primary font-semibold">
-                        {t('achievementAwardSubtitle')}
-                      </h4>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {t('achievementPatronage')}
-                      </p>
+                {/* Second Achievement - King Khalid Foundation */}
+                <Card className="border-2 shadow-xl overflow-hidden">
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* Image Section */}
+                    <div 
+                      className="relative p-8 flex items-center justify-center min-h-[400px]"
+                      style={{ backgroundColor: 'rgba(198, 194, 191)' }}
+                    >
+                      <img 
+                        src="/images/achievement2.png" 
+                        alt={currentDir === 'rtl' ? 'جائزة شركاء التنمية - مبادرة شبكة وساطة لتوظيف ذوي الاعاقة' : 'Development Partners Award - Wasata Network Initiative'}
+                        className="max-w-full h-auto object-contain drop-shadow-2xl"
+                      />
                     </div>
 
-                    <div className="flex flex-col gap-4 pt-4 border-t">
-                      <p className="text-base leading-relaxed text-muted-foreground">
-                        {t('achievementDescription')}
-                      </p>
-                    </div>
+                    {/* Content Section */}
+                    <div className="p-8 md:p-12 flex flex-col justify-center gap-6">
+                      <div className="flex flex-col gap-2">
+                        <div className="inline-block">
+                          <Badge variant="outline" className="text-sm mb-3 bg-primary/10 border-primary/30 text-primary">
+                            {currentDir === 'rtl' ? 'جائزة شركاء التنمية' : 'Development Partners Award'}
+                          </Badge>
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-bold leading-tight">
+                          {currentDir === 'rtl' ? 'مبادرة شبكة وساطة لتوظيف ذوي الاعاقة' : 'Wasata Network Initiative for Employment of People with Disabilities'}
+                        </h3>
+                        <h4 className="text-xl md:text-2xl text-primary font-semibold">
+                          {currentDir === 'rtl' ? 'لصاحبها احمد زايد المالكي' : 'By Ahmed Zaid Al-Maliki'}
+                        </h4>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {currentDir === 'rtl' ? 'فرع شركاء التنمية - مؤسسة الملك خالد' : 'Development Partners Branch - King Khalid Foundation'}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-col gap-4 pt-4">
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-primary" />
-                          <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الرؤية:' : 'Vision:'}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground ms-4">
-                          {t('achievementVision')}
+                      <div className="flex flex-col gap-4 pt-4 border-t">
+                        <p className="text-base leading-relaxed text-muted-foreground">
+                          {currentDir === 'rtl' 
+                            ? 'المبادرة عبارة عن موقع الكتروني يسهم في الحد من البطالة لذوي الإحتياجات الخاصة عن طريق إيجاد وظائف تتناسب مع مؤهلاتهم العلمية ونوع الإعاقات التي يعانون منها. المبادرة تعمل كحلقة وصل بين الباحثين عن عمل من ذوي الإحتياجات الخاصة وأصحاب العمل الباحثين عن موظفين من تلك الفئة.'
+                            : 'The initiative is a website that contributes to reducing unemployment for people with special needs by finding jobs that match their qualifications and the types of disabilities they have. The initiative serves as a bridge between job seekers with special needs and employers looking for employees from this category.'}
                         </p>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-secondary" />
-                          <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الرسالة:' : 'Mission:'}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground ms-4">
-                          {t('achievementMission')}
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-accent" />
-                          <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الأهداف:' : 'Goals:'}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground ms-4">
-                          {t('achievementGoals')}
-                        </p>
-                      </div>
-                    </div>
 
-                    <div className="pt-4">
-                      <a 
-                        href="https://aazzm.org/excellency_award/" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
-                      >
-                        <span>{t('achievementViewAward')}</span>
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
+                      <div className="flex flex-col gap-4 pt-4">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-primary" />
+                            <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'اقتصادية:' : 'Economic:'}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground ms-4">
+                            {currentDir === 'rtl' 
+                              ? 'تعمل على الحد من البطالة وإيجاد وظائف لذوي الاحتياجات الخاصة تناسب مؤهلاتهم ونوعية إعاقتهم.'
+                              : 'Working to reduce unemployment and find jobs for people with special needs that match their qualifications and type of disability.'}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-secondary" />
+                            <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'اجتماعية:' : 'Social:'}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground ms-4">
+                            {currentDir === 'rtl' 
+                              ? 'دمج هذه الفئة في المجتمع للمشاركة في الحياة العملية كأفراد فاعلين ومنتجين ومتساوين في الحقوق والواجبات والعمل.'
+                              : 'Integrating this category into society to participate in working life as active, productive individuals equal in rights, duties, and work.'}
+                          </p>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-accent" />
+                            <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'توعوية:' : 'Awareness:'}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground ms-4">
+                            {currentDir === 'rtl' 
+                              ? 'توعية ذوي الاحتياجات الخاصة بحقوقهم الخاصة بتوفير بيئة عمل تكفل لهم حق الكرامة والاحترام والتقدير.'
+                              : 'Raising awareness among people with special needs about their rights by providing a work environment that ensures their right to dignity, respect, and appreciation.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4">
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {currentDir === 'rtl' 
+                            ? 'المبادرة تخدم جميع المستهدفين من ذوي الإحتياجات الخاصة (الذهنية، الحركية، البصرية، الفكرية، النفسية وغيرها من الإعاقات الأخرى) وتوفر لهم غطاء قانوني من خلال متخصصين قانونيين متطوعين.'
+                            : 'The initiative serves all targeted people with special needs (intellectual, physical, visual, mental, psychological, and other disabilities) and provides them with legal coverage through volunteer legal specialists.'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             </div>
           </div>
         </section>
