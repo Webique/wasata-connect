@@ -117,7 +117,7 @@ router.put('/jobs/:id', authenticate, requireRole('company'), async (req, res) =
       return res.status(403).json({ error: 'Not authorized to update this job' });
     }
 
-    const { title, workingHours, qualification, skills, minSalary, healthInsurance, status } = req.body;
+    const { title, workingHours, qualification, skills, minSalary, healthInsurance, natureOfWork, location, disabilityTypes, status } = req.body;
 
     if (title) job.title = title;
     if (workingHours) job.workingHours = workingHours;
@@ -131,7 +131,22 @@ router.put('/jobs/:id', authenticate, requireRole('company'), async (req, res) =
     }
     if (minSalary !== undefined) job.minSalary = Number(minSalary);
     if (healthInsurance !== undefined) job.healthInsurance = Boolean(healthInsurance);
+    if (natureOfWork) job.natureOfWork = natureOfWork;
+    if (location) job.location = location;
+    if (disabilityTypes !== undefined) {
+      job.disabilityTypes = Array.isArray(disabilityTypes) 
+        ? disabilityTypes 
+        : typeof disabilityTypes === 'string'
+          ? disabilityTypes.split(',').map(d => d.trim()).filter(d => d)
+          : [];
+    }
     if (status) job.status = status;
+    
+    // If job is being edited after rejection, reset approval status to pending
+    if (job.approvalStatus === 'rejected') {
+      job.approvalStatus = 'pending';
+      job.rejectionReason = null;
+    }
 
     await job.save();
 

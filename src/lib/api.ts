@@ -241,9 +241,10 @@ class ApiClient {
     });
   }
 
-  async rejectJob(id: string) {
+  async rejectJob(id: string, rejectionReason: string) {
     return this.request<any>(`/admin/jobs/${id}/reject`, {
       method: 'PUT',
+      body: JSON.stringify({ rejectionReason }),
     });
   }
 

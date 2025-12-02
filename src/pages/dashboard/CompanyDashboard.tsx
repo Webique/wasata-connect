@@ -38,7 +38,9 @@ import {
   Trash2,
   Download,
   Eye,
-  ArrowRight
+  ArrowRight,
+  Edit,
+  AlertCircle
 } from 'lucide-react';
 
 export default function CompanyDashboard() {
@@ -59,6 +61,7 @@ export default function CompanyDashboard() {
   const [jobDialogOpen, setJobDialogOpen] = useState(false);
   const [applicantsDialogOpen, setApplicantsDialogOpen] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [editingJob, setEditingJob] = useState<any | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     workingHours: '',
@@ -152,21 +155,41 @@ export default function CompanyDashboard() {
       return;
     }
     try {
-      await api.createJob({
-        title: formData.title,
-        workingHours: formData.workingHours,
-        qualification: formData.qualification,
-        skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
-        minSalary: Number(formData.minSalary),
-        healthInsurance: formData.healthInsurance,
-        natureOfWork: formData.natureOfWork,
-        location: formData.location,
-        disabilityTypes: formData.disabilityTypes,
-      });
-      toast({
-        title: t('save'),
-        description: t('jobCreatedSuccess'),
-      });
+      if (editingJob) {
+        // Update existing job
+        await api.updateJob(editingJob._id, {
+          title: formData.title,
+          workingHours: formData.workingHours,
+          qualification: formData.qualification,
+          skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
+          minSalary: Number(formData.minSalary),
+          healthInsurance: formData.healthInsurance,
+          natureOfWork: formData.natureOfWork,
+          location: formData.location,
+          disabilityTypes: formData.disabilityTypes,
+        });
+        toast({
+          title: t('save'),
+          description: t('jobUpdatedSuccess'),
+        });
+      } else {
+        // Create new job
+        await api.createJob({
+          title: formData.title,
+          workingHours: formData.workingHours,
+          qualification: formData.qualification,
+          skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
+          minSalary: Number(formData.minSalary),
+          healthInsurance: formData.healthInsurance,
+          natureOfWork: formData.natureOfWork,
+          location: formData.location,
+          disabilityTypes: formData.disabilityTypes,
+        });
+        toast({
+          title: t('save'),
+          description: t('jobCreatedSuccess'),
+        });
+      }
       setJobDialogOpen(false);
       setFormData({
         title: '',
@@ -179,6 +202,7 @@ export default function CompanyDashboard() {
         location: '',
         disabilityTypes: [],
       });
+      setEditingJob(null);
       loadJobs();
     } catch (error: any) {
       toast({
@@ -285,9 +309,10 @@ export default function CompanyDashboard() {
 
   const isApproved = company.approvalStatus === 'approved';
   
-  // Split jobs into pending and active
-  const pendingJobs = jobs.filter(j => j.approvalStatus === 'pending' || j.approvalStatus === 'rejected');
+  // Split jobs into pending, active, and rejected
+  const pendingJobs = jobs.filter(j => j.approvalStatus === 'pending');
   const activeApprovedJobs = jobs.filter(j => j.approvalStatus === 'approved');
+  const rejectedJobs = jobs.filter(j => j.approvalStatus === 'rejected');
   const currentlyActiveJobs = jobs.filter(j => j.status === 'active' && j.approvalStatus === 'approved').length;
   
   // Calculate applicant stats
@@ -431,7 +456,23 @@ export default function CompanyDashboard() {
                       <CardTitle className="text-2xl">{t('myJobs')}</CardTitle>
                       <CardDescription>{jobs.length} {t('jobs')}</CardDescription>
                     </div>
-                    <Dialog open={jobDialogOpen} onOpenChange={setJobDialogOpen}>
+                    <Dialog open={jobDialogOpen} onOpenChange={(open) => {
+                      setJobDialogOpen(open);
+                      if (!open) {
+                        setEditingJob(null);
+                        setFormData({
+                          title: '',
+                          workingHours: '',
+                          qualification: '',
+                          skills: '',
+                          minSalary: '',
+                          healthInsurance: false,
+                          natureOfWork: '',
+                          location: '',
+                          disabilityTypes: [],
+                        });
+                      }
+                    }}>
                       <DialogTrigger asChild>
                         <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
                           <Plus className="h-5 w-5" /> {t('addNewJob')}
@@ -439,8 +480,12 @@ export default function CompanyDashboard() {
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle className="text-2xl">{t('addNewJob')}</DialogTitle>
-                          <DialogDescription>{t('fillJobDetails')}</DialogDescription>
+                          <DialogTitle className="text-2xl">
+                            {editingJob ? (currentDir === 'rtl' ? 'تعديل الوظيفة' : 'Edit Job') : t('addNewJob')}
+                          </DialogTitle>
+                          <DialogDescription>
+                            {editingJob ? (currentDir === 'rtl' ? 'قم بتعديل تفاصيل الوظيفة' : 'Update job details') : t('fillJobDetails')}
+                          </DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-col gap-6">
                           <div className="flex flex-col gap-2">
@@ -569,7 +614,7 @@ export default function CompanyDashboard() {
                             </Label>
                           </div>
                           <Button onClick={handleCreateJob} size="lg" className="bg-primary hover:bg-primary/90">
-                            {t('save')}
+                            {editingJob ? (currentDir === 'rtl' ? 'حفظ التعديلات' : 'Save Changes') : t('save')}
                           </Button>
                         </div>
                       </DialogContent>
@@ -584,7 +629,7 @@ export default function CompanyDashboard() {
                       </div>
                     ) : (
                       <Tabs defaultValue="active" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                        <TabsList className="grid w-full grid-cols-3 mb-6">
                           <TabsTrigger value="active" className="flex items-center gap-2">
                             <CheckCircle className="h-4 w-4" />
                             {currentDir === 'rtl' ? 'الوظائف النشطة' : 'Active Jobs'} ({activeApprovedJobs.length})
@@ -592,6 +637,10 @@ export default function CompanyDashboard() {
                           <TabsTrigger value="pending" className="flex items-center gap-2">
                             <Clock className="h-4 w-4" />
                             {currentDir === 'rtl' ? 'قيد الانتظار' : 'Pending Jobs'} ({pendingJobs.length})
+                          </TabsTrigger>
+                          <TabsTrigger value="rejected" className="flex items-center gap-2">
+                            <XCircle className="h-4 w-4" />
+                            {currentDir === 'rtl' ? 'المرفوضة' : 'Rejected Jobs'} ({rejectedJobs.length})
                           </TabsTrigger>
                         </TabsList>
                         
@@ -791,6 +840,110 @@ export default function CompanyDashboard() {
                                       >
                                         <Users className="h-4 w-4" />
                                         {t('viewApplicants')}
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => handleDeleteJob(job._id)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
+                        </TabsContent>
+                        
+                        <TabsContent value="rejected" className="mt-0">
+                          {rejectedJobs.length === 0 ? (
+                            <div className="text-center py-16">
+                              <XCircle className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                              <p className="text-lg font-medium text-muted-foreground">
+                                {currentDir === 'rtl' ? 'لا توجد وظائف مرفوضة' : 'No rejected jobs'}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {currentDir === 'rtl' ? 'الوظائف المرفوضة ستظهر هنا' : 'Rejected jobs will appear here'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {rejectedJobs.map((job) => (
+                                <Card key={job._id} className="border-2 border-destructive/20 hover:shadow-xl transition-all">
+                                  <CardHeader className="flex flex-col gap-3">
+                                    <div className="flex items-start justify-between gap-4">
+                                      <div className="flex-1">
+                                        <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
+                                        <CardDescription className="flex items-center gap-2">
+                                          <DollarSign className="h-4 w-4" />
+                                          {job.minSalary} ر.س
+                                        </CardDescription>
+                                      </div>
+                                      <Badge variant="destructive" className="text-xs">
+                                        {currentDir === 'rtl' ? 'مرفوض' : 'Rejected'}
+                                      </Badge>
+                                    </div>
+                                    {job.rejectionReason && (
+                                      <Alert className="bg-destructive/10 border-destructive/20">
+                                        <AlertCircle className="h-4 w-4 text-destructive" />
+                                        <AlertDescription className="text-sm">
+                                          <div className="flex flex-col gap-1">
+                                            <span className="font-semibold text-destructive">
+                                              {currentDir === 'rtl' ? 'سبب الرفض:' : 'Rejection Reason:'}
+                                            </span>
+                                            <span>{job.rejectionReason}</span>
+                                          </div>
+                                        </AlertDescription>
+                                      </Alert>
+                                    )}
+                                  </CardHeader>
+                                  <CardContent className="flex flex-col gap-4">
+                                    <div className="flex flex-col gap-2 text-sm">
+                                      <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Clock className="h-4 w-4" />
+                                        <span>{job.workingHours}</span>
+                                      </div>
+                                      {job.natureOfWork && (
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                          <Briefcase className="h-4 w-4" />
+                                          <span className="font-medium text-foreground">
+                                            {job.natureOfWork === 'full-time' ? t('fullTime') :
+                                             job.natureOfWork === 'flexible-hours' ? t('flexibleHours') :
+                                             job.natureOfWork === 'remote-work' ? t('remoteWork') :
+                                             job.natureOfWork === 'part-time' ? t('partTime') :
+                                             job.natureOfWork === 'social-investment' ? t('socialInvestment') :
+                                             job.natureOfWork}
+                                          </span>
+                                        </div>
+                                      )}
+                                      <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Shield className="h-4 w-4" />
+                                        <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-2 pt-4 border-t">
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                          setEditingJob(job);
+                                          setFormData({
+                                            title: job.title,
+                                            workingHours: job.workingHours,
+                                            qualification: job.qualification,
+                                            skills: job.skills?.join(', ') || '',
+                                            minSalary: job.minSalary.toString(),
+                                            healthInsurance: job.healthInsurance,
+                                            natureOfWork: job.natureOfWork,
+                                            location: job.location,
+                                            disabilityTypes: job.disabilityTypes || [],
+                                          });
+                                          setJobDialogOpen(true);
+                                        }}
+                                        className="flex-1 flex items-center gap-2"
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                        {currentDir === 'rtl' ? 'تعديل' : 'Edit'}
                                       </Button>
                                       <Button
                                         variant="destructive"

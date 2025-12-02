@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getDisabilityType, DISABILITY_TYPES } from '@/constants/disabilityTypes';
 import { SAUDI_CITIES, getCityLabel } from '@/constants/saudiCities';
@@ -44,6 +46,9 @@ export default function AdminDashboard() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [selectedJobToReject, setSelectedJobToReject] = useState<string | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
   
   // Company filters
   const [companyFilter, setCompanyFilter] = useState<string>('all');
@@ -173,13 +178,31 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleRejectJob = async (id: string) => {
+  const handleRejectJob = (id: string) => {
+    setSelectedJobToReject(id);
+    setRejectionReason('');
+    setRejectDialogOpen(true);
+  };
+
+  const handleConfirmRejectJob = async () => {
+    if (!selectedJobToReject) return;
+    if (!rejectionReason.trim()) {
+      toast({
+        title: t('error'),
+        description: currentDir === 'rtl' ? 'يرجى إدخال سبب الرفض' : 'Please enter rejection reason',
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
-      await api.rejectJob(id);
+      await api.rejectJob(selectedJobToReject, rejectionReason);
       toast({
         title: t('reject'),
         description: t('jobRejectedSuccess'),
       });
+      setRejectDialogOpen(false);
+      setSelectedJobToReject(null);
+      setRejectionReason('');
       loadJobs();
     } catch (error: any) {
       toast({
@@ -989,6 +1012,56 @@ export default function AdminDashboard() {
           </Tabs>
         </div>
       </main>
+
+      {/* Rejection Reason Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent className="max-w-2xl" dir={currentDir}>
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              {currentDir === 'rtl' ? 'رفض الوظيفة' : 'Reject Job'}
+            </DialogTitle>
+            <DialogDescription>
+              {currentDir === 'rtl' ? 'يرجى إدخال سبب رفض الوظيفة' : 'Please provide a reason for rejecting this job'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">
+                {currentDir === 'rtl' ? 'سبب الرفض' : 'Rejection Reason'} <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder={currentDir === 'rtl' ? 'اكتب سبب رفض الوظيفة...' : 'Enter rejection reason...'}
+                rows={5}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground">
+                {currentDir === 'rtl' ? 'سيتم إرسال هذا السبب إلى الشركة' : 'This reason will be sent to the company'}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRejectDialogOpen(false);
+                setRejectionReason('');
+                setSelectedJobToReject(null);
+              }}
+            >
+              {currentDir === 'rtl' ? 'إلغاء' : 'Cancel'}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmRejectJob}
+              disabled={!rejectionReason.trim()}
+            >
+              {currentDir === 'rtl' ? 'رفض الوظيفة' : 'Reject Job'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

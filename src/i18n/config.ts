@@ -270,6 +270,13 @@ const resources = {
       partTime: "دوام جزئي",
       socialInvestment: "استثمار اجتماعي (فرصة تهدف لتمكين ذوي الاعاقه في القطاع الغير ربحي)",
       selectNatureOfWork: "يرجى اختيار طبيعة العمل",
+      rejectionReason: "سبب الرفض",
+      rejectionReasonPlaceholder: "اكتب سبب رفض الوظيفة...",
+      rejectionReasonRequired: "يرجى إدخال سبب الرفض",
+      rejectionReasonDescription: "سيتم إرسال هذا السبب إلى الشركة",
+      editJob: "تعديل الوظيفة",
+      updateJobDetails: "قم بتعديل تفاصيل الوظيفة",
+      jobUpdatedSuccess: "تم تحديث الوظيفة بنجاح",
     }
   },
   en: {
@@ -540,6 +547,13 @@ const resources = {
       partTime: "Part-time",
       socialInvestment: "Social investment (an opportunity aimed at empowering people with disabilities in the non-profit sector)",
       selectNatureOfWork: "Please select nature of work",
+      rejectionReason: "Rejection Reason",
+      rejectionReasonPlaceholder: "Enter rejection reason...",
+      rejectionReasonRequired: "Please enter rejection reason",
+      rejectionReasonDescription: "This reason will be sent to the company",
+      editJob: "Edit Job",
+      updateJobDetails: "Update job details",
+      jobUpdatedSuccess: "Job updated successfully",
     }
   }
 };

@@ -53,6 +53,12 @@ const jobSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
   },
+  rejectionReason: {
+    type: String,
+    default: null,
+    trim: true
+    // Reason for rejection (only set when approvalStatus is 'rejected')
+  },
   status: {
     type: String,
     enum: ['active', 'closed'],

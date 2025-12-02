@@ -212,13 +212,19 @@ router.put('/jobs/:id/reject', async (req, res) => {
       return res.status(404).json({ error: 'Job not found' });
     }
 
+    const { rejectionReason } = req.body;
+    if (!rejectionReason || rejectionReason.trim().length === 0) {
+      return res.status(400).json({ error: 'Rejection reason is required' });
+    }
+
     job.approvalStatus = 'rejected';
+    job.rejectionReason = rejectionReason.trim();
     await job.save();
 
     await createAuditLog(
       req.user._id,
       'reject_job',
-      { jobId: job._id, jobTitle: job.title, companyName: job.companyId.name },
+      { jobId: job._id, jobTitle: job.title, companyName: job.companyId.name, rejectionReason },
       req.ip
     );
 
