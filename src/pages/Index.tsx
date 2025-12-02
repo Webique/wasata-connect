@@ -639,11 +639,20 @@ const Index = () => {
                       </div>
 
                       <div className="pt-4">
-                        <p className="text-sm text-muted-foreground mb-2">
+                        <p className="text-sm text-muted-foreground mb-4">
                           {currentDir === 'rtl' 
                             ? 'المبادرة تخدم جميع المستهدفين من ذوي الإحتياجات الخاصة (الذهنية، الحركية، البصرية، الفكرية، النفسية وغيرها من الإعاقات الأخرى) وتوفر لهم غطاء قانوني من خلال متخصصين قانونيين متطوعين.'
                             : 'The initiative serves all targeted people with special needs (intellectual, physical, visual, mental, psychological, and other disabilities) and provides them with legal coverage through volunteer legal specialists.'}
                         </p>
+                        <a 
+                          href="https://kka.kkf.org.sa/ar/PreviousWinners/Pages/PartnersBranch2015-2.aspx" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
+                        >
+                          <span>{currentDir === 'rtl' ? 'عرض الجائزة' : 'View Award'}</span>
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
                       </div>
                     </div>
                   </div>
