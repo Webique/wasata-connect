@@ -28,7 +28,9 @@ import {
   MapPin,
   DollarSign,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Trophy,
+  ExternalLink
 } from 'lucide-react';
 
 const Index = () => {
@@ -446,6 +448,101 @@ const Index = () => {
                     </p>
                   </div>
                 </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Achievement Section */}
+        <section className="py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5" dir={currentDir}>
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12 flex flex-col gap-4">
+                <div className="flex items-center justify-center gap-3">
+                  <Trophy className="h-8 w-8 text-primary" />
+                  <h2 className="text-3xl md:text-4xl font-bold">{t('achievementTitle')}</h2>
+                </div>
+              </div>
+
+              <Card className="border-2 shadow-xl overflow-hidden">
+                <div className="grid md:grid-cols-2 gap-0">
+                  {/* Image Section */}
+                  <div className="relative bg-gradient-to-br from-primary/10 to-secondary/10 p-8 flex items-center justify-center min-h-[400px]">
+                    <img 
+                      src="/images/achievement.png" 
+                      alt={t('achievementAwardTitle')}
+                      className="max-w-full h-auto object-contain drop-shadow-2xl"
+                    />
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="p-8 md:p-12 flex flex-col justify-center gap-6">
+                    <div className="flex flex-col gap-2">
+                      <div className="inline-block">
+                        <Badge variant="outline" className="text-sm mb-3 bg-primary/10 border-primary/30 text-primary">
+                          {t('achievementEdition')}
+                        </Badge>
+                      </div>
+                      <h3 className="text-2xl md:text-3xl font-bold leading-tight">
+                        {t('achievementAwardTitle')}
+                      </h3>
+                      <h4 className="text-xl md:text-2xl text-primary font-semibold">
+                        {t('achievementAwardSubtitle')}
+                      </h4>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {t('achievementPatronage')}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-4 pt-4 border-t">
+                      <p className="text-base leading-relaxed text-muted-foreground">
+                        {t('achievementDescription')}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-4 pt-4">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-primary" />
+                          <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الرؤية:' : 'Vision:'}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground ms-4">
+                          {t('achievementVision')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-secondary" />
+                          <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الرسالة:' : 'Mission:'}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground ms-4">
+                          {t('achievementMission')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-accent" />
+                          <span className="text-sm font-semibold">{currentDir === 'rtl' ? 'الأهداف:' : 'Goals:'}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground ms-4">
+                          {t('achievementGoals')}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <a 
+                        href="https://aazzm.org/excellency_award/" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
+                      >
+                        <span>{t('achievementViewAward')}</span>
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </Card>
             </div>
           </div>

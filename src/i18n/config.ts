@@ -42,6 +42,19 @@ const resources = {
       trustTitle: "نلتزم بالشفافية والأمان",
       trustDesc: "جميع الشركات معتمدة ومراجعة. خصوصيتك وأمان بياناتك أولويتنا.",
       
+      // Achievement
+      achievementTitle: "إنجازنا",
+      achievementAwardTitle: "جائزة التميز الوطنية",
+      achievementAwardSubtitle: "لذوي الإعاقة الحركية",
+      achievementEdition: "النسخة الأولى - 2024",
+      achievementPatronage: "تحت رعاية صاحب السمو الملكي",
+      achievementDescription: "جائزة التميز الوطنية لذوي الإعاقة الحركية هي جائزة تمنحها جمعية عازم للأشخاص ذوي الإعاقة الحركية والمهتمين بهم، من خلال تقييم المشاركات وفق معايير محددة؛ وذلك سعياً لإبراز القدرات وبث روح التنافس بين الأشخاص ذوي الإعاقة الحركية على مستوى المملكة العربية السعودية.",
+      achievementVision: "جائزة تميز وطنية رائدة للأشخاص ذوي الإعاقة الحركية",
+      achievementMission: "تكريم وتحفيز الأشخاص ذوي الإعاقة الحركية لدعم التميز والإبداع من خلال إبراز إسهاماتهم وإنجازاتهم في المجتمع",
+      achievementGoals: "تكريم الأفراد ذوي الإعاقة الحركية المتميزين في مختلف المجالات، وتعزيز الوعي الاجتماعي حول قدرات وإنجازات الأشخاص ذوي الإعاقة الحركية، ودعم المبادرات والأنشطة التي تعزز من مشاركة ذوي الإعاقة الحركية في المجتمع",
+      achievementLearnMore: "معرفة المزيد",
+      achievementViewAward: "عرض الجائزة",
+      
       // Footer
       quickLinks: "روابط سريعة",
       accessibilityStatement: "بيان إمكانية الوصول",
@@ -290,6 +303,19 @@ const resources = {
       // Trust
       trustTitle: "Committed to Transparency and Safety",
       trustDesc: "All companies are verified and reviewed. Your privacy and data security are our priority.",
+      
+      // Achievement
+      achievementTitle: "Our Achievement",
+      achievementAwardTitle: "National Excellence Award",
+      achievementAwardSubtitle: "for People with Motor Disabilities",
+      achievementEdition: "First Edition - 2024",
+      achievementPatronage: "Under the Patronage of HRH",
+      achievementDescription: "The National Excellence Award for People with Motor Disabilities is an award presented by Aazzm Association to people with motor disabilities and those interested in them, through evaluating submissions according to specific criteria; in order to highlight capabilities and foster a spirit of competition among people with motor disabilities across the Kingdom of Saudi Arabia.",
+      achievementVision: "A leading national excellence award for people with motor disabilities",
+      achievementMission: "Honoring and motivating people with motor disabilities to support excellence and creativity by highlighting their contributions and achievements in society",
+      achievementGoals: "Honoring distinguished individuals with motor disabilities in various fields, enhancing social awareness about the capabilities and achievements of people with motor disabilities, and supporting initiatives and activities that enhance the participation of people with motor disabilities in society",
+      achievementLearnMore: "Learn More",
+      achievementViewAward: "View Award",
       
       // Footer
       quickLinks: "Quick Links",
