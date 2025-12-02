@@ -334,6 +334,10 @@ export default function AdminDashboard() {
     return true;
   });
 
+  // Split jobs into pending and reviewed (approved/rejected)
+  const pendingJobs = jobs.filter(j => j.approvalStatus === 'pending');
+  const reviewedJobs = jobs.filter(j => j.approvalStatus === 'approved' || j.approvalStatus === 'rejected');
+
   const stats = {
     totalCompanies: companies.length,
     totalJobSeekers: jobSeekers.length,
@@ -850,14 +854,32 @@ export default function AdminDashboard() {
             </TabsContent>
 
             <TabsContent value="jobs" className="flex flex-col gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t('jobs')}</CardTitle>
-                  <CardDescription>{jobs.length} {t('jobs')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col gap-4">
-                    {jobs.map((job) => (
+              <Tabs defaultValue="pending" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="pending" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    {currentDir === 'rtl' ? 'قيد المراجعة' : 'Pending Jobs'} ({pendingJobs.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="reviewed" className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    {currentDir === 'rtl' ? 'تمت المراجعة' : 'Reviewed Jobs'} ({reviewedJobs.length})
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="pending" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{currentDir === 'rtl' ? 'الوظائف قيد المراجعة' : 'Pending Jobs'}</CardTitle>
+                      <CardDescription>{pendingJobs.length} {currentDir === 'rtl' ? 'وظيفة تحتاج مراجعة' : 'jobs need review'}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {pendingJobs.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground">
+                          {currentDir === 'rtl' ? 'لا توجد وظائف قيد المراجعة' : 'No pending jobs'}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-4">
+                          {pendingJobs.map((job) => (
                       <Card key={job._id} className="border-2">
                         <CardHeader>
                           <div className="flex items-start justify-between gap-4">
@@ -921,6 +943,18 @@ export default function AdminDashboard() {
                               <span className="text-muted-foreground">{t('healthInsurance')}:</span>
                               <p className="font-medium">{job.healthInsurance ? t('yes') : t('no')}</p>
                             </div>
+                            {job.location && (
+                              <div className="col-span-2">
+                                <span className="text-muted-foreground">{currentDir === 'rtl' ? 'الموقع' : 'Location'}:</span>
+                                <p className="font-medium">{getCityLabel(job.location, currentDir === 'rtl' ? 'ar' : 'en')}</p>
+                              </div>
+                            )}
+                            {job.natureOfWork && (
+                              <div className="col-span-2">
+                                <span className="text-muted-foreground">{t('natureOfWork')}:</span>
+                                <p className="font-medium">{t(job.natureOfWork)}</p>
+                              </div>
+                            )}
                           </div>
                           <div className="flex gap-2 pt-2 border-t">
                             {job.approvalStatus === 'pending' && (
@@ -955,15 +989,149 @@ export default function AdminDashboard() {
                           </div>
                         </CardContent>
                       </Card>
-                    ))}
-                  </div>
-                  {jobs.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
-                      {t('noData')}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="reviewed" className="mt-0">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{currentDir === 'rtl' ? 'الوظائف التي تمت مراجعتها' : 'Reviewed Jobs'}</CardTitle>
+                      <CardDescription>{reviewedJobs.length} {currentDir === 'rtl' ? 'وظيفة تمت مراجعتها' : 'jobs reviewed'}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {reviewedJobs.length === 0 ? (
+                        <div className="text-center py-12 text-muted-foreground">
+                          {currentDir === 'rtl' ? 'لا توجد وظائف تمت مراجعتها' : 'No reviewed jobs'}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-4">
+                          {reviewedJobs.map((job) => (
+                            <Card key={job._id} className="border-2">
+                              <CardHeader>
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex flex-col gap-2 flex-1">
+                                    <CardTitle className="text-lg">{job.title}</CardTitle>
+                                    <CardDescription>{job.companyId?.name}</CardDescription>
+                                  </div>
+                                  <Badge variant={
+                                    job.approvalStatus === 'approved' ? 'default' :
+                                    job.approvalStatus === 'rejected' ? 'destructive' : 'secondary'
+                                  }>
+                                    {t(job.approvalStatus || 'pending')}
+                                  </Badge>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="flex flex-col gap-4">
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-muted-foreground">{t('workingHours')}:</span>
+                                    <p className="font-medium">{job.workingHours}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">{t('minSalary')}:</span>
+                                    <p className="font-medium">{job.minSalary} ر.س</p>
+                                  </div>
+                                  <div className="col-span-2">
+                                    <span className="text-muted-foreground">{t('qualification')}:</span>
+                                    <p className="font-medium">{job.qualification}</p>
+                                  </div>
+                                  <div className="col-span-2">
+                                    <span className="text-muted-foreground">{t('skills')}:</span>
+                                    <div className="flex flex-wrap gap-2">
+                                      {job.skills?.map((skill: string, idx: number) => (
+                                        <Badge key={idx} variant="outline">{skill}</Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div className="col-span-2">
+                                    <span className="text-muted-foreground">{t('targetDisabilityTypes')}:</span>
+                                    <div className="flex flex-col gap-2">
+                                      {job.disabilityTypes?.map((type: string, idx: number) => {
+                                        const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                                        return (
+                                          <div key={idx} className="p-2 bg-muted/50 rounded border">
+                                            <div className="flex flex-col gap-1">
+                                              <span className="font-medium text-sm">
+                                                {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                              </span>
+                                              {disabilityType && (
+                                                <span className="text-xs text-muted-foreground">
+                                                  {currentDir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
+                                                </span>
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                  <div className="col-span-2">
+                                    <span className="text-muted-foreground">{t('healthInsurance')}:</span>
+                                    <p className="font-medium">{job.healthInsurance ? t('yes') : t('no')}</p>
+                                  </div>
+                                  {job.location && (
+                                    <div className="col-span-2">
+                                      <span className="text-muted-foreground">{currentDir === 'rtl' ? 'الموقع' : 'Location'}:</span>
+                                      <p className="font-medium">{getCityLabel(job.location, currentDir === 'rtl' ? 'ar' : 'en')}</p>
+                                    </div>
+                                  )}
+                                  {job.natureOfWork && (
+                                    <div className="col-span-2">
+                                      <span className="text-muted-foreground">{t('natureOfWork')}:</span>
+                                      <p className="font-medium">{t(job.natureOfWork)}</p>
+                                    </div>
+                                  )}
+                                  {job.rejectionReason && (
+                                    <div className="col-span-2">
+                                      <span className="text-muted-foreground">{currentDir === 'rtl' ? 'سبب الرفض' : 'Rejection Reason'}:</span>
+                                      <p className="font-medium text-destructive">{job.rejectionReason}</p>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 pt-2 border-t">
+                                  {job.approvalStatus === 'approved' && (
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      onClick={() => handleRejectJob(job._id)}
+                                      className="flex-1"
+                                    >
+                                      <XCircle className="h-4 w-4 me-2" />
+                                      {t('reject')}
+                                    </Button>
+                                  )}
+                                  {job.approvalStatus === 'rejected' && (
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleApproveJob(job._id)}
+                                      className="flex-1 bg-green-600 hover:bg-green-700"
+                                    >
+                                      <CheckCircle className="h-4 w-4 me-2" />
+                                      {t('approve')}
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => handleDeleteJob(job._id)}
+                                    className="flex-1"
+                                  >
+                                    {t('delete')}
+                                  </Button>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="applications" className="flex flex-col gap-6">
