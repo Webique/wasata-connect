@@ -262,6 +262,14 @@ const resources = {
       submitApplication: "إرسال الطلب",
       jobApprovedSuccess: "تمت الموافقة على الوظيفة بنجاح",
       jobRejectedSuccess: "تم رفض الوظيفة",
+      natureOfWork: "طبيعة العمل",
+      natureOfWorkPlaceholder: "اختر طبيعة العمل",
+      fullTime: "دوام كامل",
+      flexibleHours: "دوام مرن",
+      remoteWork: "دوام عن بُعد",
+      partTime: "دوام جزئي",
+      socialInvestment: "استثمار اجتماعي (فرصة تهدف لتمكين ذوي الاعاقه في القطاع الغير ربحي)",
+      selectNatureOfWork: "يرجى اختيار طبيعة العمل",
     }
   },
   en: {
@@ -524,6 +532,14 @@ const resources = {
       submitApplication: "Submit Application",
       jobApprovedSuccess: "Job approved successfully",
       jobRejectedSuccess: "Job rejected",
+      natureOfWork: "Nature of Work",
+      natureOfWorkPlaceholder: "Select nature of work",
+      fullTime: "Full-time",
+      flexibleHours: "Flexible hours",
+      remoteWork: "Remote work",
+      partTime: "Part-time",
+      socialInvestment: "Social investment (an opportunity aimed at empowering people with disabilities in the non-profit sector)",
+      selectNatureOfWork: "Please select nature of work",
     }
   }
 };

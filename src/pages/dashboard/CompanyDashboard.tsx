@@ -18,6 +18,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Briefcase, 
@@ -63,6 +64,7 @@ export default function CompanyDashboard() {
     skills: '',
     minSalary: '',
     healthInsurance: false,
+    natureOfWork: '',
     disabilityTypes: [] as string[],
   });
 
@@ -111,6 +113,14 @@ export default function CompanyDashboard() {
       });
       return;
     }
+    if (!formData.natureOfWork) {
+      toast({
+        title: t('error'),
+        description: t('selectNatureOfWork'),
+        variant: 'destructive',
+      });
+      return;
+    }
     try {
       await api.createJob({
         title: formData.title,
@@ -119,6 +129,7 @@ export default function CompanyDashboard() {
         skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
         minSalary: Number(formData.minSalary),
         healthInsurance: formData.healthInsurance,
+        natureOfWork: formData.natureOfWork,
         disabilityTypes: formData.disabilityTypes,
       });
       toast({
@@ -133,6 +144,7 @@ export default function CompanyDashboard() {
         skills: '',
         minSalary: '',
         healthInsurance: false,
+        natureOfWork: '',
         disabilityTypes: [],
       });
       loadJobs();
@@ -393,6 +405,21 @@ export default function CompanyDashboard() {
                             />
                           </div>
                           <div className="flex flex-col gap-2">
+                            <Label className="text-sm font-medium">{t('natureOfWork')} <span className="text-destructive">*</span></Label>
+                            <Select value={formData.natureOfWork} onValueChange={(value) => setFormData({ ...formData, natureOfWork: value })}>
+                              <SelectTrigger className="h-12">
+                                <SelectValue placeholder={t('natureOfWorkPlaceholder')} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="full-time">{t('fullTime')}</SelectItem>
+                                <SelectItem value="flexible-hours">{t('flexibleHours')}</SelectItem>
+                                <SelectItem value="remote-work">{t('remoteWork')}</SelectItem>
+                                <SelectItem value="part-time">{t('partTime')}</SelectItem>
+                                <SelectItem value="social-investment">{t('socialInvestment')}</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex flex-col gap-2">
                             <Label className="text-sm font-medium">{t('targetDisabilityTypes')} <span className="text-destructive">*</span></Label>
                             <div className="flex flex-col gap-2 max-h-48 overflow-y-auto p-3 border rounded-lg bg-muted/30">
                               {DISABILITY_TYPES.map((type) => (
@@ -479,6 +506,19 @@ export default function CompanyDashboard() {
                                   <Clock className="h-4 w-4" />
                                   <span>{job.workingHours}</span>
                                 </div>
+                                {job.natureOfWork && (
+                                  <div className="flex items-center gap-2 text-muted-foreground">
+                                    <Briefcase className="h-4 w-4" />
+                                    <span className="font-medium text-foreground">
+                                      {job.natureOfWork === 'full-time' ? t('fullTime') :
+                                       job.natureOfWork === 'flexible-hours' ? t('flexibleHours') :
+                                       job.natureOfWork === 'remote-work' ? t('remoteWork') :
+                                       job.natureOfWork === 'part-time' ? t('partTime') :
+                                       job.natureOfWork === 'social-investment' ? t('socialInvestment') :
+                                       job.natureOfWork}
+                                    </span>
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                   <Shield className="h-4 w-4" />
                                   <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>

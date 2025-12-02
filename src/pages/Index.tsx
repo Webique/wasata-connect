@@ -366,6 +366,19 @@ const Index = () => {
                             <Clock className="h-4 w-4" />
                             <span>{job.workingHours}</span>
                           </div>
+                          {job.natureOfWork && (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Briefcase className="h-4 w-4" />
+                              <span className="font-medium text-foreground">
+                                {job.natureOfWork === 'full-time' ? t('fullTime') :
+                                 job.natureOfWork === 'flexible-hours' ? t('flexibleHours') :
+                                 job.natureOfWork === 'remote-work' ? t('remoteWork') :
+                                 job.natureOfWork === 'part-time' ? t('partTime') :
+                                 job.natureOfWork === 'social-investment' ? t('socialInvestment') :
+                                 job.natureOfWork}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Shield className="h-4 w-4" />
                             <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>

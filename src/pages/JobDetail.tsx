@@ -134,6 +134,22 @@ export default function JobDetail() {
                     <p className="font-medium">{job.healthInsurance ? t('yes') : t('no')}</p>
                   </div>
                 </div>
+                {job.natureOfWork && (
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">{t('natureOfWork')}</p>
+                      <p className="font-medium">
+                        {job.natureOfWork === 'full-time' ? t('fullTime') :
+                         job.natureOfWork === 'flexible-hours' ? t('flexibleHours') :
+                         job.natureOfWork === 'remote-work' ? t('remoteWork') :
+                         job.natureOfWork === 'part-time' ? t('partTime') :
+                         job.natureOfWork === 'social-investment' ? t('socialInvestment') :
+                         job.natureOfWork}
+                      </p>
+                    </div>
+                  </div>
+                )}
                 {job.companyId?.mapsUrl && (
                   <div className="flex items-center gap-2">
                     <MapPin className="h-5 w-5 text-muted-foreground" />
