@@ -135,24 +135,24 @@ export const Navbar = () => {
               </>
             ) : (
               <>
-                <Link to="/login">
+            <Link to="/login">
                   <Button 
                     variant="outline" 
                     size="lg" 
                     className="text-base font-medium h-11 px-6 rounded-lg border-2 hover:bg-muted/50 transition-all duration-200"
                   >
-                    {t('login')}
-                  </Button>
-                </Link>
-                <Link to="/register">
+                {t('login')}
+              </Button>
+            </Link>
+            <Link to="/register">
                   <Button 
                     variant="default" 
                     size="lg" 
                     className="text-base font-semibold h-11 px-6 rounded-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                   >
-                    {t('register')}
-                  </Button>
-                </Link>
+                {t('register')}
+              </Button>
+            </Link>
               </>
             )}
             <Button
@@ -216,9 +216,9 @@ export const Navbar = () => {
                     : "text-foreground/70"
                 )}
               >
-                {t('about')}
-              </Button>
-            </Link>
+                  {t('about')}
+                </Button>
+              </Link>
             <Link 
               to="/help" 
               onClick={() => setMobileMenuOpen(false)}
@@ -234,9 +234,9 @@ export const Navbar = () => {
                     : "text-foreground/70"
                 )}
               >
-                {t('help')}
-              </Button>
-            </Link>
+                  {t('help')}
+                </Button>
+              </Link>
             <Link 
               to="/policies" 
               onClick={() => setMobileMenuOpen(false)}
@@ -252,9 +252,9 @@ export const Navbar = () => {
                     : "text-foreground/70"
                 )}
               >
-                {t('policies')}
-              </Button>
-            </Link>
+                  {t('policies')}
+                </Button>
+              </Link>
             <div className="h-px bg-border/50 my-3" />
             {user ? (
               <>
@@ -295,9 +295,9 @@ export const Navbar = () => {
                     size="lg" 
                     className="w-full text-base h-12 rounded-lg border-2 font-medium"
                   >
-                    {t('login')}
-                  </Button>
-                </Link>
+                  {t('login')}
+                </Button>
+              </Link>
                 <Link 
                   to="/register" 
                   onClick={() => setMobileMenuOpen(false)}
@@ -308,26 +308,26 @@ export const Navbar = () => {
                     size="lg" 
                     className="w-full text-base h-12 rounded-lg bg-gradient-to-r from-primary to-primary/90 font-semibold shadow-lg"
                   >
-                    {t('register')}
-                  </Button>
-                </Link>
+                  {t('register')}
+                </Button>
+              </Link>
               </>
             )}
             <div className="h-px bg-border/50 my-3" />
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={() => {
-                toggleLanguage();
-                setMobileMenuOpen(false);
-              }}
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => {
+                  toggleLanguage();
+                  setMobileMenuOpen(false);
+                }}
               className="w-full justify-start text-base h-12 rounded-lg font-medium"
-            >
+              >
               <Languages className="h-5 w-5 me-2" />
-              {language === 'ar' ? 'English' : 'العربية'}
-            </Button>
+                {language === 'ar' ? 'English' : 'العربية'}
+              </Button>
+            </div>
           </div>
-        </div>
       </div>
     </nav>
   );

@@ -199,5 +199,41 @@ router.get('/jobs/:id/applicants', authenticate, requireRole('company'), async (
   }
 });
 
+// Update application status
+router.put('/applications/:id/status', authenticate, requireRole('company'), async (req, res) => {
+  try {
+    const company = await Company.findOne({ ownerUserId: req.user._id });
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    const application = await Application.findById(req.params.id).populate('jobId');
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    // Verify the job belongs to the company
+    if (application.jobId.companyId.toString() !== company._id.toString()) {
+      return res.status(403).json({ error: 'Not authorized to update this application' });
+    }
+
+    const { status } = req.body;
+    if (!status || !['submitted', 'reviewed', 'shortlisted', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be one of: submitted, reviewed, shortlisted, rejected' });
+    }
+
+    application.status = status;
+    await application.save();
+
+    res.json({
+      message: 'Application status updated successfully',
+      application
+    });
+  } catch (error) {
+    console.error('Update application status error:', error);
+    res.status(500).json({ error: 'Failed to update application status' });
+  }
+});
+
 export default router;
 

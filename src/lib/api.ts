@@ -187,6 +187,13 @@ class ApiClient {
     return this.request<any[]>(`/company/jobs/${jobId}/applicants`);
   }
 
+  async updateApplicationStatus(applicationId: string, status: string) {
+    return this.request<any>(`/company/applications/${applicationId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  }
+
   // Admin
   async getCompanies(status?: string) {
     const query = status ? `?status=${status}` : '';

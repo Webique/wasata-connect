@@ -54,6 +54,7 @@ export default function CompanyDashboard() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
   const [applicants, setApplicants] = useState<any[]>([]);
+  const [allApplicants, setAllApplicants] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [jobDialogOpen, setJobDialogOpen] = useState(false);
   const [applicantsDialogOpen, setApplicantsDialogOpen] = useState(false);
@@ -78,8 +79,26 @@ export default function CompanyDashboard() {
 
   const loadJobs = async () => {
     try {
+      setLoading(true);
       const jobsData = await api.getCompanyJobs();
       setJobs(jobsData);
+      
+      // Load all applicants for all jobs to calculate stats (only if company is approved)
+      if (company?.approvalStatus === 'approved') {
+        const allApplicantsData: any[] = [];
+        for (const job of jobsData) {
+          try {
+            const jobApplicants = await api.getJobApplicants(job._id);
+            allApplicantsData.push(...jobApplicants);
+          } catch (error) {
+            // Skip if error loading applicants for a job
+            console.error(`Failed to load applicants for job ${job._id}:`, error);
+          }
+        }
+        setAllApplicants(allApplicantsData);
+      } else {
+        setAllApplicants([]);
+      }
     } catch (error: any) {
       toast({
         title: t('error'),
@@ -105,6 +124,7 @@ export default function CompanyDashboard() {
       });
     }
   };
+
 
   const handleCreateJob = async () => {
     if (formData.disabilityTypes.length === 0) {
@@ -207,6 +227,28 @@ export default function CompanyDashboard() {
     }
   };
 
+  const handleUpdateApplicationStatus = async (applicationId: string, newStatus: string) => {
+    try {
+      await api.updateApplicationStatus(applicationId, newStatus);
+      toast({
+        title: t('save'),
+        description: currentDir === 'rtl' ? 'تم تحديث حالة المتقدم بنجاح' : 'Application status updated successfully',
+      });
+      // Reload applicants for the current job
+      if (selectedJob) {
+        await loadApplicants(selectedJob);
+      }
+      // Reload all jobs to update stats
+      await loadJobs();
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: error.message || t('somethingWentWrong'),
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     if (status === 'approved') {
       return (
@@ -242,13 +284,24 @@ export default function CompanyDashboard() {
   }
 
   const isApproved = company.approvalStatus === 'approved';
-  const activeJobs = jobs.filter(j => j.status === 'active').length;
+  
+  // Split jobs into pending and active
+  const pendingJobs = jobs.filter(j => j.approvalStatus === 'pending' || j.approvalStatus === 'rejected');
+  const activeApprovedJobs = jobs.filter(j => j.approvalStatus === 'approved');
+  const currentlyActiveJobs = jobs.filter(j => j.status === 'active' && j.approvalStatus === 'approved').length;
+  
+  // Calculate applicant stats
+  const totalApplicants = allApplicants.length;
+  const pendingApplicants = allApplicants.filter(a => a.status === 'submitted' || a.status === 'reviewed').length;
+  const shortlistedApplicants = allApplicants.filter(a => a.status === 'shortlisted').length;
 
   const stats = {
     totalJobs: jobs.length,
-    activeJobs,
-    totalApplicants: 0, // Will be calculated when we load applicants
-    pendingApplicants: 0,
+    activeJobs: activeApprovedJobs.length, // All approved jobs (active + closed)
+    currentlyActive: currentlyActiveJobs, // Only active approved jobs
+    totalApplicants,
+    pendingApplicants,
+    shortlistedApplicants,
   };
 
   return (
@@ -333,7 +386,7 @@ export default function CompanyDashboard() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-3xl font-bold">{stats.totalJobs}</div>
-                      <p className="text-xs text-muted-foreground mt-2">{stats.activeJobs} {t('active')}</p>
+                      <p className="text-xs text-muted-foreground mt-2">{stats.activeJobs} {currentDir === 'rtl' ? 'موافق عليها' : 'Approved'}</p>
                     </CardContent>
                   </Card>
 
@@ -343,7 +396,7 @@ export default function CompanyDashboard() {
                       <TrendingUp className="h-5 w-5 text-secondary" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-3xl font-bold">{stats.activeJobs}</div>
+                      <div className="text-3xl font-bold">{stats.currentlyActive}</div>
                       <p className="text-xs text-muted-foreground mt-2">{t('currentlyActive')}</p>
                     </CardContent>
                   </Card>
@@ -530,8 +583,32 @@ export default function CompanyDashboard() {
                         <p className="text-sm text-muted-foreground mt-2">{t('createFirstJob')}</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {jobs.map((job) => (
+                      <Tabs defaultValue="active" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                          <TabsTrigger value="active" className="flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            {currentDir === 'rtl' ? 'الوظائف النشطة' : 'Active Jobs'} ({activeApprovedJobs.length})
+                          </TabsTrigger>
+                          <TabsTrigger value="pending" className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            {currentDir === 'rtl' ? 'قيد الانتظار' : 'Pending Jobs'} ({pendingJobs.length})
+                          </TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="active" className="mt-0">
+                          {activeApprovedJobs.length === 0 ? (
+                            <div className="text-center py-16">
+                              <CheckCircle className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                              <p className="text-lg font-medium text-muted-foreground">
+                                {currentDir === 'rtl' ? 'لا توجد وظائف نشطة' : 'No active jobs'}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {currentDir === 'rtl' ? 'الوظائف الموافق عليها ستظهر هنا' : 'Approved jobs will appear here'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {activeApprovedJobs.map((job) => (
                           <Card key={job._id} className="border-2 hover:shadow-xl transition-all">
                             <CardHeader className="flex flex-col gap-3">
                               <div className="flex items-start justify-between gap-4">
@@ -633,8 +710,103 @@ export default function CompanyDashboard() {
                               </div>
                             </CardContent>
                           </Card>
-                        ))}
-                      </div>
+                              ))}
+                            </div>
+                          )}
+                        </TabsContent>
+                        
+                        <TabsContent value="pending" className="mt-0">
+                          {pendingJobs.length === 0 ? (
+                            <div className="text-center py-16">
+                              <Clock className="h-16 w-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+                              <p className="text-lg font-medium text-muted-foreground">
+                                {currentDir === 'rtl' ? 'لا توجد وظائف قيد الانتظار' : 'No pending jobs'}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {currentDir === 'rtl' ? 'الوظائف المعلقة ستظهر هنا' : 'Pending jobs will appear here'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {pendingJobs.map((job) => (
+                                <Card key={job._id} className="border-2 hover:shadow-xl transition-all">
+                                  <CardHeader className="flex flex-col gap-3">
+                                    <div className="flex items-start justify-between gap-4">
+                                      <div className="flex-1">
+                                        <CardTitle className="text-xl mb-2">{job.title}</CardTitle>
+                                        <CardDescription className="flex items-center gap-2">
+                                          <DollarSign className="h-4 w-4" />
+                                          {job.minSalary} ر.س
+                                        </CardDescription>
+                                      </div>
+                                      <div className="flex flex-col gap-2 items-end">
+                                        {/* Approval Status Badge */}
+                                        <Badge 
+                                          variant={
+                                            job.approvalStatus === 'approved' ? 'default' :
+                                            job.approvalStatus === 'rejected' ? 'destructive' :
+                                            'secondary'
+                                          }
+                                          className="text-xs"
+                                        >
+                                          {job.approvalStatus === 'approved' 
+                                            ? (currentDir === 'rtl' ? 'موافق عليه' : 'Approved')
+                                            : job.approvalStatus === 'rejected'
+                                            ? (currentDir === 'rtl' ? 'مرفوض' : 'Declined')
+                                            : (currentDir === 'rtl' ? 'قيد الانتظار' : 'Pending')
+                                          }
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                  </CardHeader>
+                                  <CardContent className="flex flex-col gap-4">
+                                    <div className="flex flex-col gap-2 text-sm">
+                                      <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Clock className="h-4 w-4" />
+                                        <span>{job.workingHours}</span>
+                                      </div>
+                                      {job.natureOfWork && (
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                          <Briefcase className="h-4 w-4" />
+                                          <span className="font-medium text-foreground">
+                                            {job.natureOfWork === 'full-time' ? t('fullTime') :
+                                             job.natureOfWork === 'flexible-hours' ? t('flexibleHours') :
+                                             job.natureOfWork === 'remote-work' ? t('remoteWork') :
+                                             job.natureOfWork === 'part-time' ? t('partTime') :
+                                             job.natureOfWork === 'social-investment' ? t('socialInvestment') :
+                                             job.natureOfWork}
+                                          </span>
+                                        </div>
+                                      )}
+                                      <div className="flex items-center gap-2 text-muted-foreground">
+                                        <Shield className="h-4 w-4" />
+                                        <span>{t('healthInsurance')}: {job.healthInsurance ? t('yes') : t('no')}</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex gap-2 pt-4 border-t">
+                                      <Button
+                                        variant="outline"
+                                        onClick={() => loadApplicants(job._id)}
+                                        className="flex-1 flex items-center gap-2"
+                                      >
+                                        <Users className="h-4 w-4" />
+                                        {t('viewApplicants')}
+                                      </Button>
+                                      <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        onClick={() => handleDeleteJob(job._id)}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
+                        </TabsContent>
+                      </Tabs>
                     )}
                   </CardContent>
                 </Card>
@@ -672,13 +844,39 @@ export default function CompanyDashboard() {
                             <TableCell>{app.applicantPhone}</TableCell>
                             <TableCell>{app.applicantDisabilityType}</TableCell>
                             <TableCell>
-                              <Badge variant={
-                                app.status === 'submitted' ? 'default' :
-                                app.status === 'shortlisted' ? 'default' :
-                                app.status === 'rejected' ? 'destructive' : 'secondary'
-                              }>
-                                {t(app.status)}
-                              </Badge>
+                              <Select
+                                value={app.status}
+                                onValueChange={(value) => handleUpdateApplicationStatus(app._id, value)}
+                              >
+                                <SelectTrigger className="w-[160px] h-9">
+                                  <SelectValue>
+                                    <Badge 
+                                      variant={
+                                        app.status === 'submitted' ? 'default' :
+                                        app.status === 'shortlisted' ? 'default' :
+                                        app.status === 'rejected' ? 'destructive' : 'secondary'
+                                      }
+                                      className="text-xs"
+                                    >
+                                      {t(app.status)}
+                                    </Badge>
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="submitted">
+                                    {t('submitted')}
+                                  </SelectItem>
+                                  <SelectItem value="reviewed">
+                                    {t('reviewed')}
+                                  </SelectItem>
+                                  <SelectItem value="shortlisted">
+                                    {t('shortlisted')}
+                                  </SelectItem>
+                                  <SelectItem value="rejected">
+                                    {t('rejected')}
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
                             </TableCell>
                             <TableCell className="text-end">
                               <div className="flex items-center justify-end gap-2">
