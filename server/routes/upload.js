@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
-import { authenticate } from '../middleware/auth.js';
+import { optionalAuthenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -42,7 +42,8 @@ const upload = multer({
 });
 
 // Upload file to Cloudinary
-router.post('/', authenticate, upload.single('file'), async (req, res) => {
+// Using optionalAuthenticate to allow uploads during registration (when user is not logged in yet)
+router.post('/', optionalAuthenticate, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
