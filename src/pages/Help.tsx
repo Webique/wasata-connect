@@ -27,7 +27,7 @@ const Help = () => {
                     {language === 'ar' ? 'البريد الإلكتروني' : 'Email'}
                   </h3>
                   <p className="text-muted-foreground">
-                    support@wasata.com
+                    m3aqjob@gmail.com
                   </p>
                 </CardContent>
               </Card>
@@ -38,10 +38,10 @@ const Help = () => {
                     <MessageCircle className="h-6 w-6 text-secondary" />
                   </div>
                   <h3 className="text-xl font-semibold">
-                    {language === 'ar' ? 'واتساب' : 'WhatsApp'}
+                    {language === 'ar' ? 'الرقم' : 'Phone'}
                   </h3>
                   <p className="text-muted-foreground">
-                    +966 XX XXX XXXX
+                    0559274447
                   </p>
                 </CardContent>
               </Card>

@@ -71,7 +71,7 @@ class ApiClient {
     location: string;
     cvUrl: string;
   }) {
-    return this.request<{ token: string; user: any }>('/auth/register-user', {
+    return this.request<{ token: string; user: any }>('/api/auth/register-user', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -89,7 +89,7 @@ class ApiClient {
     location: string;
   }) {
     return this.request<{ token: string; user: any; company: any }>(
-      '/auth/register-company',
+      '/api/auth/register-company',
       {
         method: 'POST',
         body: JSON.stringify(data),
@@ -99,7 +99,7 @@ class ApiClient {
 
   async login(phone?: string, email?: string, password?: string) {
     return this.request<{ token: string; user: any; company?: any }>(
-      '/auth/login',
+      '/api/auth/login',
       {
         method: 'POST',
         body: JSON.stringify({ phone, email, password }),
@@ -108,17 +108,17 @@ class ApiClient {
   }
 
   async getMe() {
-    return this.request<{ user: any; company?: any }>('/auth/me');
+    return this.request<{ user: any; company?: any }>('/api/auth/me');
   }
 
   // Jobs
   async getJobs(search?: string) {
     const query = search ? `?search=${encodeURIComponent(search)}` : '';
-    return this.request<any[]>(`/jobs${query}`);
+    return this.request<any[]>(`/api/jobs${query}`);
   }
 
   async getJob(id: string) {
-    return this.request<any>(`/jobs/${id}`);
+    return this.request<any>(`/api/jobs/${id}`);
   }
 
   // User
@@ -129,18 +129,18 @@ class ApiClient {
     disabilityType?: string;
     cvUrl?: string;
   }) {
-    return this.request<{ user: any }>('/me', {
+    return this.request<{ user: any }>('/api/me', {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async getMyApplications() {
-    return this.request<any[]>('/me/applications');
+    return this.request<any[]>('/api/me/applications');
   }
 
   async createApplication(data: { jobId: string }) {
-    return this.request<any>('/applications', {
+    return this.request<any>('/api/applications', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -148,11 +148,11 @@ class ApiClient {
 
   // Company
   async getCompanyProfile() {
-    return this.request<any>('/company/me');
+    return this.request<any>('/api/company/me');
   }
 
   async getCompanyJobs() {
-    return this.request<any[]>('/company/me/jobs');
+    return this.request<any[]>('/api/company/me/jobs');
   }
 
   async createJob(data: {
@@ -164,31 +164,31 @@ class ApiClient {
     healthInsurance: boolean;
     disabilityTypes: string[];
   }) {
-    return this.request<any>('/company/jobs', {
+    return this.request<any>('/api/company/jobs', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateJob(id: string, data: any) {
-    return this.request<any>(`/company/jobs/${id}`, {
+    return this.request<any>(`/api/company/jobs/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async deleteJob(id: string) {
-    return this.request<{ message: string }>(`/company/jobs/${id}`, {
+    return this.request<{ message: string }>(`/api/company/jobs/${id}`, {
       method: 'DELETE',
     });
   }
 
   async getJobApplicants(jobId: string) {
-    return this.request<any[]>(`/company/jobs/${jobId}/applicants`);
+    return this.request<any[]>(`/api/company/jobs/${jobId}/applicants`);
   }
 
   async updateApplicationStatus(applicationId: string, status: string) {
-    return this.request<any>(`/company/applications/${applicationId}/status`, {
+    return this.request<any>(`/api/company/applications/${applicationId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
@@ -197,17 +197,17 @@ class ApiClient {
   // Admin
   async getCompanies(status?: string) {
     const query = status ? `?status=${status}` : '';
-    return this.request<any[]>(`/admin/companies${query}`);
+    return this.request<any[]>(`/api/admin/companies${query}`);
   }
 
   async approveCompany(id: string) {
-    return this.request<any>(`/admin/companies/${id}/approve`, {
+    return this.request<any>(`/api/admin/companies/${id}/approve`, {
       method: 'PUT',
     });
   }
 
   async rejectCompany(id: string) {
-    return this.request<any>(`/admin/companies/${id}/reject`, {
+    return this.request<any>(`/api/admin/companies/${id}/reject`, {
       method: 'PUT',
     });
   }
@@ -217,11 +217,11 @@ class ApiClient {
     if (search) params.append('search', search);
     if (role) params.append('role', role);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<any[]>(`/admin/users${query}`);
+    return this.request<any[]>(`/api/admin/users${query}`);
   }
 
   async deleteUser(id: string) {
-    return this.request<{ message: string }>(`/admin/users/${id}`, {
+    return this.request<{ message: string }>(`/api/admin/users/${id}`, {
       method: 'DELETE',
     });
   }
@@ -232,30 +232,30 @@ class ApiClient {
     if (status) params.append('status', status);
     if (approvalStatus) params.append('approvalStatus', approvalStatus);
     const query = params.toString() ? `?${params.toString()}` : '';
-    return this.request<any[]>(`/admin/jobs${query}`);
+    return this.request<any[]>(`/api/admin/jobs${query}`);
   }
 
   async approveJob(id: string) {
-    return this.request<any>(`/admin/jobs/${id}/approve`, {
+    return this.request<any>(`/api/admin/jobs/${id}/approve`, {
       method: 'PUT',
     });
   }
 
   async rejectJob(id: string, rejectionReason: string) {
-    return this.request<any>(`/admin/jobs/${id}/reject`, {
+    return this.request<any>(`/api/admin/jobs/${id}/reject`, {
       method: 'PUT',
       body: JSON.stringify({ rejectionReason }),
     });
   }
 
   async deleteJobAdmin(id: string) {
-    return this.request<{ message: string }>(`/admin/jobs/${id}`, {
+    return this.request<{ message: string }>(`/api/admin/jobs/${id}`, {
       method: 'DELETE',
     });
   }
 
   async getAdminApplications() {
-    return this.request<any[]>('/admin/applications');
+    return this.request<any[]>('/api/admin/applications');
   }
 
   // Upload
@@ -269,7 +269,7 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${this.baseURL}/uploads`, {
+    const response = await fetch(`${this.baseURL}/api/uploads`, {
       method: 'POST',
       headers,
       body: formData,

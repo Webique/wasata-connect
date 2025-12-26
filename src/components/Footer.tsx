@@ -230,10 +230,10 @@ export const Footer = () => {
                       {currentDir === 'rtl' ? 'البريد الإلكتروني' : 'Email'}
                     </span>
                     <a 
-                      href="mailto:support@wasata.com" 
+                      href="mailto:m3aqjob@gmail.com" 
                       className="text-foreground hover:text-primary transition-colors font-medium"
                     >
-                      support@wasata.com
+                      m3aqjob@gmail.com
                     </a>
                   </div>
                 </div>
@@ -244,10 +244,10 @@ export const Footer = () => {
                       {currentDir === 'rtl' ? 'الهاتف' : 'Phone'}
                     </span>
                     <a 
-                      href="tel:+966XXXXXXXXX" 
+                      href="tel:+966559274447" 
                       className="text-foreground hover:text-primary transition-colors font-medium"
                     >
-                      +966 XX XXX XXXX
+                      {currentDir === 'rtl' ? '0559274447' : '0559274447'}
                     </a>
                   </div>
                 </div>
