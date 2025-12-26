@@ -30,7 +30,9 @@ import {
   Clock,
   Shield,
   BarChart3,
-  Languages
+  Languages,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -572,6 +574,89 @@ export default function AdminDashboard() {
                           </div>
                         )}
                       </div>
+                      
+                      {/* Documents Section */}
+                      <div className="flex flex-col gap-3 pt-2 border-t">
+                        <div className="text-sm font-semibold text-foreground">
+                          {currentDir === 'rtl' ? 'المستندات' : 'Documents'}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {company.crDocUrl && (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-sm text-muted-foreground">
+                                {currentDir === 'rtl' ? 'السجل التجاري' : 'CR Document'}
+                              </span>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(company.crDocUrl, '_blank')}
+                                  className="h-8"
+                                >
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  {currentDir === 'rtl' ? 'عرض' : 'View'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = company.crDocUrl;
+                                    link.download = `CR_${company.name}_${company._id}.pdf`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
+                                  className="h-8"
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  {currentDir === 'rtl' ? 'تحميل' : 'Download'}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          {company.mowaamaDocUrl && (
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-sm text-muted-foreground">
+                                {currentDir === 'rtl' ? 'وثيقة موائمة' : 'Mowaama Document'}
+                              </span>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(company.mowaamaDocUrl, '_blank')}
+                                  className="h-8"
+                                >
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  {currentDir === 'rtl' ? 'عرض' : 'View'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = company.mowaamaDocUrl;
+                                    link.download = `Mowaama_${company.name}_${company._id}.pdf`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
+                                  className="h-8"
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  {currentDir === 'rtl' ? 'تحميل' : 'Download'}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          {!company.crDocUrl && !company.mowaamaDocUrl && (
+                            <span className="text-sm text-muted-foreground">
+                              {currentDir === 'rtl' ? 'لا توجد مستندات' : 'No documents'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
                       {company.approvalStatus === 'pending' && (
                         <div className="flex gap-2 pt-2 border-t">
                           <Button
@@ -689,6 +774,7 @@ export default function AdminDashboard() {
                         <TableHead>{t('emailAddress')}</TableHead>
                         <TableHead>{t('disabilityType')}</TableHead>
                         <TableHead>{currentDir === 'rtl' ? 'الموقع' : 'Location'}</TableHead>
+                        <TableHead>{currentDir === 'rtl' ? 'السيرة الذاتية' : 'CV'}</TableHead>
                         <TableHead>{t('status')}</TableHead>
                         <TableHead className="text-end">{t('actions')}</TableHead>
                       </TableRow>
@@ -715,6 +801,39 @@ export default function AdminDashboard() {
                                 {getCityLabel(seeker.location, currentDir === 'rtl' ? 'ar' : 'en')}
                               </Badge>
                             ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {seeker.cvUrl ? (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(seeker.cvUrl, '_blank')}
+                                  className="h-8"
+                                >
+                                  <ExternalLink className="h-3 w-3 mr-1" />
+                                  {currentDir === 'rtl' ? 'عرض' : 'View'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const link = document.createElement('a');
+                                    link.href = seeker.cvUrl;
+                                    link.download = `CV_${seeker.name}_${seeker._id}.pdf`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                  }}
+                                  className="h-8"
+                                >
+                                  <Download className="h-3 w-3 mr-1" />
+                                  {currentDir === 'rtl' ? 'تحميل' : 'Download'}
+                                </Button>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">-</span>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Badge variant={seeker.status === 'active' ? 'default' : 'secondary'}>
