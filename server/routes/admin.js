@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import Job from '../models/Job.js';
 import Application from '../models/Application.js';
 import Audit from '../models/Audit.js';
+import Blocked from '../models/Blocked.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -152,6 +153,79 @@ router.delete('/users/:id', async (req, res) => {
   } catch (error) {
     console.error('Delete user error:', error);
     res.status(500).json({ error: 'Failed to disable user' });
+  }
+});
+
+// Block user/company - disables account and prevents re-registration
+router.put('/users/:id/block', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: 'Cannot block admin user' });
+    }
+
+    // Disable the user account
+    user.status = 'disabled';
+    await user.save();
+
+    // Add phone and email to blocked list
+    const blockedData = {
+      blockedBy: req.user._id,
+      reason: 'Blocked by admin'
+    };
+
+    if (user.phone) {
+      blockedData.phone = user.phone;
+    }
+
+    if (user.email) {
+      blockedData.email = user.email.toLowerCase();
+    }
+
+    // Check if already blocked, if not create new entry
+    const existingBlock = await Blocked.findOne({
+      $or: [
+        { phone: user.phone },
+        { email: user.email?.toLowerCase() }
+      ]
+    });
+
+    if (!existingBlock) {
+      await Blocked.create(blockedData);
+    }
+
+    // If it's a company, also reject/disable the company
+    if (user.role === 'company') {
+      const company = await Company.findOne({ ownerUserId: user._id });
+      if (company) {
+        company.approvalStatus = 'rejected';
+        await company.save();
+      }
+    }
+
+    await createAuditLog(
+      req.user._id,
+      'block_user',
+      { 
+        userId: user._id, 
+        userName: user.name,
+        phone: user.phone,
+        email: user.email
+      },
+      req.ip
+    );
+
+    res.json({ 
+      message: 'User blocked successfully. Phone and email are now blocked from registration.',
+      user
+    });
+  } catch (error) {
+    console.error('Block user error:', error);
+    res.status(500).json({ error: 'Failed to block user' });
   }
 });
 

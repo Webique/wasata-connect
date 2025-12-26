@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Company from '../models/Company.js';
+import Blocked from '../models/Blocked.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -25,6 +26,17 @@ router.post('/register-user', async (req, res) => {
 
     if (!name || !phone || !password || !disabilityType || !cvUrl || !location) {
       return res.status(400).json({ error: 'Missing required fields (name, phone, password, disabilityType, cvUrl, location)' });
+    }
+
+    // Check if phone/email is blocked
+    const blocked = await Blocked.findOne({
+      $or: [
+        { phone },
+        { email: email?.toLowerCase() }
+      ]
+    });
+    if (blocked) {
+      return res.status(403).json({ error: 'This phone number or email has been blocked and cannot register' });
     }
 
     // Check if user exists
@@ -86,6 +98,17 @@ router.post('/register-company', async (req, res) => {
 
     if (!name || !phone || !email || !password || !crNumber || !crDocUrl || !mapsUrl || !location) {
       return res.status(400).json({ error: 'Missing required fields (including location)' });
+    }
+
+    // Check if phone/email is blocked
+    const blocked = await Blocked.findOne({
+      $or: [
+        { phone },
+        { email: email?.toLowerCase() }
+      ]
+    });
+    if (blocked) {
+      return res.status(403).json({ error: 'This phone number or email has been blocked and cannot register' });
     }
 
     // Check if user exists

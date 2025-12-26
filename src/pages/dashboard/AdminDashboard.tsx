@@ -32,7 +32,8 @@ import {
   BarChart3,
   Languages,
   Download,
-  ExternalLink
+  ExternalLink,
+  Ban
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -243,6 +244,32 @@ export default function AdminDashboard() {
         description: t('deleteSuccess'),
       });
       loadUsers();
+      loadData();
+    } catch (error: any) {
+      toast({
+        title: t('error'),
+        description: translateErrorMessage(error.message, t),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleBlockUser = async (id: string) => {
+    const confirmMessage = currentDir === 'rtl' 
+      ? 'هل أنت متأكد من حظر هذا المستخدم؟ سيتم تعطيل الحساب ومنع رقم الهاتف/البريد الإلكتروني من التسجيل مرة أخرى.'
+      : 'Are you sure you want to block this user? The account will be disabled and the phone/email will be blocked from registering again.';
+    
+    if (!confirm(confirmMessage)) return;
+    try {
+      await api.blockUser(id);
+      toast({
+        title: currentDir === 'rtl' ? 'تم الحظر' : 'Blocked',
+        description: currentDir === 'rtl' 
+          ? 'تم حظر المستخدم بنجاح. لن يتمكن رقم الهاتف/البريد الإلكتروني من التسجيل مرة أخرى.'
+          : 'User blocked successfully. Phone/email cannot register again.',
+      });
+      loadUsers();
+      loadCompanies(companyFilter);
       loadData();
     } catch (error: any) {
       toast({
@@ -657,25 +684,38 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       
-                      {company.approvalStatus === 'pending' && (
-                        <div className="flex gap-2 pt-2 border-t">
+                      <div className="flex flex-col gap-2 pt-2 border-t">
+                        {company.approvalStatus === 'pending' && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveCompany(company._id)}
+                              className="flex-1"
+                            >
+                              <CheckCircle className="h-4 w-4" /> {t('approve')}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleRejectCompany(company._id)}
+                              className="flex-1"
+                            >
+                              <XCircle className="h-4 w-4" /> {t('reject')}
+                            </Button>
+                          </div>
+                        )}
+                        {owner && (
                           <Button
                             size="sm"
-                            onClick={() => handleApproveCompany(company._id)}
-                            className="flex-1"
+                            variant="outline"
+                            onClick={() => handleBlockUser(owner._id)}
+                            className="w-full border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600"
                           >
-                            <CheckCircle className="h-4 w-4" /> {t('approve')}
+                            <Ban className="h-3 w-3 mr-1" />
+                            {currentDir === 'rtl' ? 'حظر الشركة' : 'Block Company'}
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleRejectCompany(company._id)}
-                            className="flex-1"
-                          >
-                            <XCircle className="h-4 w-4" /> {t('reject')}
-                          </Button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                       );
@@ -841,13 +881,24 @@ export default function AdminDashboard() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-end">
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDeleteUser(seeker._id)}
-                            >
-                              {t('delete')}
-                            </Button>
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleBlockUser(seeker._id)}
+                                className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600"
+                              >
+                                <Ban className="h-3 w-3 mr-1" />
+                                {currentDir === 'rtl' ? 'حظر' : 'Block'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDeleteUser(seeker._id)}
+                              >
+                                {t('delete')}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -952,13 +1003,24 @@ export default function AdminDashboard() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-end">
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDeleteUser(employer._id)}
-                            >
-                              {t('delete')}
-                            </Button>
+                            <div className="flex gap-2 justify-end">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleBlockUser(employer._id)}
+                                className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600"
+                              >
+                                <Ban className="h-3 w-3 mr-1" />
+                                {currentDir === 'rtl' ? 'حظر' : 'Block'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleDeleteUser(employer._id)}
+                              >
+                                {t('delete')}
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}

@@ -226,6 +226,12 @@ class ApiClient {
     });
   }
 
+  async blockUser(id: string) {
+    return this.request<{ message: string; user: any }>(`/api/admin/users/${id}/block`, {
+      method: 'PUT',
+    });
+  }
+
   async getAdminJobs(companyId?: string, status?: string, approvalStatus?: string) {
     const params = new URLSearchParams();
     if (companyId) params.append('companyId', companyId);
