@@ -1,0 +1,65 @@
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import User from '../models/User.js';
+
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/wasata-connect';
+
+async function updateAdmin() {
+  try {
+    console.log('🔌 Connecting to MongoDB...');
+    await mongoose.connect(MONGODB_URI);
+    console.log('✅ Connected to MongoDB');
+
+    // Find admin user (by role or old email)
+    const admin = await User.findOne({ 
+      $or: [
+        { role: 'admin' },
+        { email: 'admin@wasata.com' }
+      ]
+    });
+
+    if (!admin) {
+      console.log('❌ No admin user found. Creating new admin...');
+      const newAdmin = new User({
+        role: 'admin',
+        name: 'Admin User',
+        phone: '0500000000',
+        email: 'm3aqjob@gmail.com',
+        passwordHash: 'Watyn05534', // Will be hashed by pre-save hook
+        location: 'riyadh',
+        status: 'active'
+      });
+      await newAdmin.save();
+      console.log('✅ New admin created');
+      console.log('📧 Email: m3aqjob@gmail.com');
+      console.log('🔑 Password: Watyn05534');
+    } else {
+      console.log('👤 Found admin user:', admin.name);
+      console.log('📧 Old email:', admin.email);
+      
+      // Update email and password
+      admin.email = 'm3aqjob@gmail.com';
+      admin.passwordHash = 'Watyn05534'; // Will be hashed by pre-save hook
+      admin.role = 'admin'; // Ensure role is admin
+      admin.status = 'active'; // Ensure status is active
+      
+      await admin.save();
+      console.log('✅ Admin updated successfully!');
+      console.log('📧 New email: m3aqjob@gmail.com');
+      console.log('🔑 New password: Watyn05534');
+      console.log('ℹ️  All other data remains unchanged');
+    }
+
+    await mongoose.disconnect();
+    console.log('👋 Disconnected from MongoDB');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error:', error);
+    process.exit(1);
+  }
+}
+
+updateAdmin();
+
