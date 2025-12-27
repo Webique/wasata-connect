@@ -12,17 +12,12 @@ async function updateAdmin() {
     await mongoose.connect(MONGODB_URI);
     console.log('✅ Connected to MongoDB');
 
-    // Find admin user (by role or old email)
-    const admin = await User.findOne({ 
-      $or: [
-        { role: 'admin' },
-        { email: 'admin@wasata.com' }
-      ]
-    });
+    // Find admin user (by role - should find the existing one)
+    let admin = await User.findOne({ role: 'admin' });
 
     if (!admin) {
       console.log('❌ No admin user found. Creating new admin...');
-      const newAdmin = new User({
+      admin = new User({
         role: 'admin',
         name: 'Admin User',
         phone: '0500000000',
@@ -31,13 +26,11 @@ async function updateAdmin() {
         location: 'riyadh',
         status: 'active'
       });
-      await newAdmin.save();
+      await admin.save();
       console.log('✅ New admin created');
-      console.log('📧 Email: m3aqjob@gmail.com');
-      console.log('🔑 Password: Watyn05534');
     } else {
       console.log('👤 Found admin user:', admin.name);
-      console.log('📧 Old email:', admin.email);
+      console.log('📧 Current email:', admin.email);
       
       // Update email and password
       admin.email = 'm3aqjob@gmail.com';
@@ -45,12 +38,16 @@ async function updateAdmin() {
       admin.role = 'admin'; // Ensure role is admin
       admin.status = 'active'; // Ensure status is active
       
+      // Mark password as modified to trigger hashing
+      admin.markModified('passwordHash');
+      
       await admin.save();
       console.log('✅ Admin updated successfully!');
-      console.log('📧 New email: m3aqjob@gmail.com');
-      console.log('🔑 New password: Watyn05534');
-      console.log('ℹ️  All other data remains unchanged');
     }
+    
+    console.log('📧 Email: m3aqjob@gmail.com');
+    console.log('🔑 Password: Watyn05534');
+    console.log('ℹ️  All other data remains unchanged');
 
     await mongoose.disconnect();
     console.log('👋 Disconnected from MongoDB');
