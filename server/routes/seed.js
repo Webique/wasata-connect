@@ -47,13 +47,13 @@ router.post('/', async (req, res) => {
       role: 'admin',
       name: 'Admin User',
       phone: '0500000000',
-      email: 'admin@wasata.com',
-      passwordHash: 'admin123', // Will be hashed by pre-save hook
+      email: 'm3aqjob@gmail.com',
+      passwordHash: 'Watyn05534', // Will be hashed by pre-save hook
       location: 'riyadh',
       status: 'active'
     });
     await admin.save();
-    console.log('✅ Admin created - Email: admin@wasata.com, Password: admin123');
+    console.log('✅ Admin created - Email: m3aqjob@gmail.com, Password: Watyn05534');
 
     // Create Test Users (Job Seekers)
     console.log('👥 Creating test users...');
@@ -187,7 +187,7 @@ router.post('/', async (req, res) => {
     res.json({
       message: 'Database seeded successfully!',
       credentials: {
-        admin: { email: 'admin@wasata.com', password: 'admin123' },
+        admin: { email: 'm3aqjob@gmail.com', password: 'Watyn05534' },
         user: { phone: '0500000001', password: 'password123' },
         approvedCompany: { email: 'approved@company.com', password: 'password123' },
         pendingCompany: { email: 'pending@company.com', password: 'password123' }

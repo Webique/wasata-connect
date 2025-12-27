@@ -46,12 +46,12 @@ async function seed() {
       role: 'admin',
       name: 'Admin User',
       phone: '0500000000',
-      email: 'admin@wasata.com',
-      passwordHash: 'admin123', // Will be hashed by pre-save hook
+      email: 'm3aqjob@gmail.com',
+      passwordHash: 'Watyn05534', // Will be hashed by pre-save hook
       status: 'active'
     });
     await admin.save();
-    console.log('✅ Admin created - Email: admin@wasata.com, Password: admin123');
+    console.log('✅ Admin created - Email: m3aqjob@gmail.com, Password: Watyn05534');
 
     // Create Test Users (Job Seekers)
     console.log('👥 Creating test users...');
@@ -194,7 +194,7 @@ async function seed() {
 
     console.log('\n🎉 Seed completed successfully!');
     console.log('\n📋 Test Credentials:');
-    console.log('Admin: admin@wasata.com / admin123');
+    console.log('Admin: m3aqjob@gmail.com / Watyn05534');
     console.log('User: 0500000001 / password123');
     console.log('Approved Company: approved@company.com / password123');
     console.log('Pending Company: pending@company.com / password123');

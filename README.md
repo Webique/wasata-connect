@@ -67,7 +67,7 @@ npm run seed
 ```
 
 This creates:
-- Admin: `admin@wasata.com` / `admin123`
+- Admin: `m3aqjob@gmail.com` / `Watyn05534`
 - Test users and companies
 - Sample jobs and applications
 
