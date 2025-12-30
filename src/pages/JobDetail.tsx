@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from '@/hooks/use-toast';
 import { Briefcase, MapPin, DollarSign, Shield } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getDisabilityType } from '@/constants/disabilityTypes';
+import { getDisabilityType, formatDisabilityTypeForDisplay } from '@/constants/disabilityTypes';
 
 export default function JobDetail() {
   const { t } = useTranslation();
@@ -191,13 +191,14 @@ export default function JobDetail() {
                   <div className="flex flex-col gap-2">
                     {job.disabilityTypes.map((type: string, idx: number) => {
                       const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                      const displayText = formatDisabilityTypeForDisplay(type, currentDir === 'rtl' ? 'ar' : 'en');
                       return (
                         <div key={idx} className="p-3 bg-muted/50 rounded-lg border">
                           <div className="flex flex-col gap-1">
                             <span className="font-medium">
-                              {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                              {displayText}
                             </span>
-                            {disabilityType && (
+                            {disabilityType && !disabilityType.value.includes('أخرى') && (
                               <span className="text-sm text-muted-foreground">
                                 {currentDir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
                               </span>

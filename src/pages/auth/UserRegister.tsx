@@ -14,7 +14,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { FileText } from 'lucide-react';
-import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { DISABILITY_TYPES, isCustomDisabilityType, extractCustomDisabilityText } from '@/constants/disabilityTypes';
 import { SAUDI_CITIES } from '@/constants/saudiCities';
 
 export default function UserRegister() {
@@ -37,8 +37,11 @@ export default function UserRegister() {
     location: '',
     cvFile: null as File | null,
   });
+  const [customDisabilityText, setCustomDisabilityText] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  
+  const isOtherSelected = formData.disabilityType === 'أخرى';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +59,16 @@ export default function UserRegister() {
       toast({
         title: t('error'),
         description: t('requiredField'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // If "Other" is selected, require custom text
+    if (isOtherSelected && !customDisabilityText.trim()) {
+      toast({
+        title: t('error'),
+        description: currentDir === 'rtl' ? 'يرجى تحديد نوع الإعاقة' : 'Please specify the disability type',
         variant: 'destructive',
       });
       return;
@@ -85,13 +98,18 @@ export default function UserRegister() {
       // Upload CV first
       const uploadResult = await api.uploadFile(formData.cvFile);
       
+      // Format disability type: if "Other" is selected, combine with custom text
+      const finalDisabilityType = isOtherSelected 
+        ? `أخرى - ${customDisabilityText.trim()}`
+        : formData.disabilityType;
+      
       // Then register user with CV URL
       await registerUser({
         name: formData.name,
         phone: formData.phone,
         email: formData.email || undefined,
         password: formData.password,
-        disabilityType: formData.disabilityType,
+        disabilityType: finalDisabilityType,
         location: formData.location,
         cvUrl: uploadResult.url,
       });
@@ -158,12 +176,27 @@ export default function UserRegister() {
               <div className="flex flex-col gap-2">
                 <Label htmlFor="disabilityType">{t('disabilityType')}</Label>
                 <Select
-                  value={formData.disabilityType}
-                  onValueChange={(value) => setFormData({ ...formData, disabilityType: value })}
+                  value={isCustomDisabilityType(formData.disabilityType) ? 'أخرى' : formData.disabilityType}
+                  onValueChange={(value) => {
+                    if (value === 'أخرى') {
+                      setFormData({ ...formData, disabilityType: 'أخرى' });
+                      // If there's existing custom text, extract it
+                      if (isCustomDisabilityType(formData.disabilityType)) {
+                        setCustomDisabilityText(extractCustomDisabilityText(formData.disabilityType));
+                      }
+                    } else {
+                      setFormData({ ...formData, disabilityType: value });
+                      setCustomDisabilityText('');
+                    }
+                  }}
                 >
                   <SelectTrigger id="disabilityType" className="h-auto min-h-[3rem]">
                     <SelectValue placeholder={t('selectDisabilityType')}>
                       {formData.disabilityType && (() => {
+                        if (isCustomDisabilityType(formData.disabilityType)) {
+                          const otherType = DISABILITY_TYPES.find(t => t.value === 'أخرى');
+                          return otherType ? (currentDir === 'rtl' ? otherType.labelAr : otherType.labelEn) : 'أخرى';
+                        }
                         const selected = DISABILITY_TYPES.find(t => t.value === formData.disabilityType);
                         return selected ? (currentDir === 'rtl' ? selected.labelAr : selected.labelEn) : formData.disabilityType;
                       })()}
@@ -182,6 +215,21 @@ export default function UserRegister() {
                     ))}
                   </SelectContent>
                 </Select>
+                {isOtherSelected && (
+                  <div className="flex flex-col gap-2 mt-2">
+                    <Label htmlFor="customDisabilityText" className="text-sm">
+                      {currentDir === 'rtl' ? 'يرجى تحديد نوع الإعاقة' : 'Please specify the disability type'} <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="customDisabilityText"
+                      type="text"
+                      value={customDisabilityText}
+                      onChange={(e) => setCustomDisabilityText(e.target.value)}
+                      placeholder={currentDir === 'rtl' ? 'اكتب نوع الإعاقة' : 'Enter disability type'}
+                      required={isOtherSelected}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">

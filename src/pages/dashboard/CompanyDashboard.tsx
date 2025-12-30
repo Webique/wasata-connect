@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
-import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { DISABILITY_TYPES, isCustomDisabilityType, extractCustomDisabilityText } from '@/constants/disabilityTypes';
 import { SAUDI_CITIES } from '@/constants/saudiCities';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
@@ -74,6 +74,10 @@ export default function CompanyDashboard() {
     location: '',
     disabilityTypes: [] as string[],
   });
+  const [customDisabilityText, setCustomDisabilityText] = useState('');
+  
+  const isOtherSelected = formData.disabilityTypes.includes('أخرى') || 
+    formData.disabilityTypes.some(dt => isCustomDisabilityType(dt));
 
   useEffect(() => {
     if (company) {
@@ -139,6 +143,16 @@ export default function CompanyDashboard() {
       });
       return;
     }
+    
+    // If "Other" is selected, require custom text
+    if (isOtherSelected && !customDisabilityText.trim()) {
+      toast({
+        title: t('error'),
+        description: currentDir === 'rtl' ? 'يرجى تحديد نوع الإعاقة' : 'Please specify the disability type',
+        variant: 'destructive',
+      });
+      return;
+    }
     if (!formData.natureOfWork) {
       toast({
         title: t('error'),
@@ -156,6 +170,14 @@ export default function CompanyDashboard() {
       return;
     }
     try {
+      // Format disability types: if "Other" is selected, replace it with custom text
+      const formattedDisabilityTypes = formData.disabilityTypes.map(dt => {
+        if (dt === 'أخرى' || isCustomDisabilityType(dt)) {
+          return `أخرى - ${customDisabilityText.trim()}`;
+        }
+        return dt;
+      });
+      
       if (editingJob) {
         // Update existing job
         await api.updateJob(editingJob._id, {
@@ -167,7 +189,7 @@ export default function CompanyDashboard() {
           healthInsurance: formData.healthInsurance,
           natureOfWork: formData.natureOfWork,
           location: formData.location,
-          disabilityTypes: formData.disabilityTypes,
+          disabilityTypes: formattedDisabilityTypes,
         });
         toast({
           title: t('save'),
@@ -184,7 +206,7 @@ export default function CompanyDashboard() {
           healthInsurance: formData.healthInsurance,
           natureOfWork: formData.natureOfWork,
           location: formData.location,
-          disabilityTypes: formData.disabilityTypes,
+          disabilityTypes: formattedDisabilityTypes,
         });
         toast({
           title: t('save'),
@@ -203,6 +225,7 @@ export default function CompanyDashboard() {
         location: '',
         disabilityTypes: [],
       });
+      setCustomDisabilityText('');
       setEditingJob(null);
       loadJobs();
     } catch (error: any) {
@@ -461,6 +484,7 @@ export default function CompanyDashboard() {
                       setJobDialogOpen(open);
                       if (!open) {
                         setEditingJob(null);
+                        setCustomDisabilityText('');
                         setFormData({
                           title: '',
                           workingHours: '',
@@ -573,18 +597,30 @@ export default function CompanyDashboard() {
                                   <input
                                     type="checkbox"
                                     id={`disability-${type.value}`}
-                                    checked={formData.disabilityTypes.includes(type.value)}
+                                    checked={formData.disabilityTypes.includes(type.value) || 
+                                      (type.value === 'أخرى' && formData.disabilityTypes.some(dt => isCustomDisabilityType(dt)))}
                                     onChange={(e) => {
                                       if (e.target.checked) {
                                         setFormData({
                                           ...formData,
-                                          disabilityTypes: [...formData.disabilityTypes, type.value],
+                                          disabilityTypes: [...formData.disabilityTypes.filter(t => t !== 'أخرى' && !isCustomDisabilityType(t)), type.value],
                                         });
+                                        if (type.value === 'أخرى') {
+                                          // If there's existing custom text from editing, keep it
+                                          if (!customDisabilityText) {
+                                            setCustomDisabilityText('');
+                                          }
+                                        }
                                       } else {
                                         setFormData({
                                           ...formData,
-                                          disabilityTypes: formData.disabilityTypes.filter((t) => t !== type.value),
+                                          disabilityTypes: formData.disabilityTypes.filter((t) => 
+                                            t !== type.value && !isCustomDisabilityType(t)
+                                          ),
                                         });
+                                        if (type.value === 'أخرى') {
+                                          setCustomDisabilityText('');
+                                        }
                                       }
                                     }}
                                     className="w-4 h-4 mt-1"
@@ -600,6 +636,22 @@ export default function CompanyDashboard() {
                                 </div>
                               ))}
                             </div>
+                            {isOtherSelected && (
+                              <div className="flex flex-col gap-2 mt-2">
+                                <Label htmlFor="customDisabilityText" className="text-sm">
+                                  {currentDir === 'rtl' ? 'يرجى تحديد نوع الإعاقة' : 'Please specify the disability type'} <span className="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                  id="customDisabilityText"
+                                  type="text"
+                                  value={customDisabilityText}
+                                  onChange={(e) => setCustomDisabilityText(e.target.value)}
+                                  placeholder={currentDir === 'rtl' ? 'اكتب نوع الإعاقة' : 'Enter disability type'}
+                                  required={isOtherSelected}
+                                  className="h-12"
+                                />
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
                             <input
@@ -928,17 +980,48 @@ export default function CompanyDashboard() {
                                         variant="outline"
                                         onClick={() => {
                                           setEditingJob(job);
-                                          setFormData({
-                                            title: job.title,
-                                            workingHours: job.workingHours,
-                                            qualification: job.qualification,
-                                            skills: job.skills?.join(', ') || '',
-                                            minSalary: job.minSalary.toString(),
-                                            healthInsurance: job.healthInsurance,
-                                            natureOfWork: job.natureOfWork,
-                                            location: job.location,
-                                            disabilityTypes: job.disabilityTypes || [],
-                                          });
+                                          const disabilityTypes = job.disabilityTypes || [];
+                                          // Extract custom text if "Other" is present
+                                          let customText = '';
+                                          const hasOther = disabilityTypes.some((dt: string) => 
+                                            dt === 'أخرى' || isCustomDisabilityType(dt)
+                                          );
+                                          if (hasOther) {
+                                            const otherType = disabilityTypes.find((dt: string) => 
+                                              dt === 'أخرى' || isCustomDisabilityType(dt)
+                                            );
+                                            if (otherType && isCustomDisabilityType(otherType)) {
+                                              customText = extractCustomDisabilityText(otherType);
+                                            }
+                                            // Replace custom "Other" with just "أخرى" in the array for checkbox state
+                                            const normalizedTypes = disabilityTypes.map((dt: string) => 
+                                              isCustomDisabilityType(dt) ? 'أخرى' : dt
+                                            );
+                                            setFormData({
+                                              title: job.title,
+                                              workingHours: job.workingHours,
+                                              qualification: job.qualification,
+                                              skills: job.skills?.join(', ') || '',
+                                              minSalary: job.minSalary.toString(),
+                                              healthInsurance: job.healthInsurance,
+                                              natureOfWork: job.natureOfWork,
+                                              location: job.location,
+                                              disabilityTypes: normalizedTypes,
+                                            });
+                                          } else {
+                                            setFormData({
+                                              title: job.title,
+                                              workingHours: job.workingHours,
+                                              qualification: job.qualification,
+                                              skills: job.skills?.join(', ') || '',
+                                              minSalary: job.minSalary.toString(),
+                                              healthInsurance: job.healthInsurance,
+                                              natureOfWork: job.natureOfWork,
+                                              location: job.location,
+                                              disabilityTypes: disabilityTypes,
+                                            });
+                                          }
+                                          setCustomDisabilityText(customText);
                                           setJobDialogOpen(true);
                                         }}
                                         className="flex-1 flex items-center gap-2"

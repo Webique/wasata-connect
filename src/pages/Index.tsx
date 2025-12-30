@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { api } from '@/lib/api';
-import { getDisabilityType } from '@/constants/disabilityTypes';
+import { getDisabilityType, formatDisabilityTypeForDisplay } from '@/constants/disabilityTypes';
 import { DISABILITY_TYPES } from '@/constants/disabilityTypes';
 import { SAUDI_CITIES, getCityLabel } from '@/constants/saudiCities';
 import { 
@@ -392,10 +392,10 @@ const Index = () => {
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {job.disabilityTypes.slice(0, 3).map((type: string, idx: number) => {
-                                const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                                const displayText = formatDisabilityTypeForDisplay(type, currentDir === 'rtl' ? 'ar' : 'en');
                                 return (
                                   <Badge key={idx} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary">
-                                    {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                    {displayText}
                                   </Badge>
                                 );
                               })}

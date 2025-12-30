@@ -71,10 +71,37 @@ export const DISABILITY_TYPES: DisabilityType[] = [
     labelEn: 'Multiple or combined disabilities',
     descriptionEn: 'Cases that involve more than one type of disability',
   },
+  {
+    value: 'أخرى',
+    labelAr: 'أخرى',
+    descriptionAr: 'يرجى تحديد نوع الإعاقة',
+    labelEn: 'Other',
+    descriptionEn: 'Please specify the disability type',
+  },
 ];
+
+// Helper function to check if value is a custom "Other" value
+export const isCustomDisabilityType = (value: string): boolean => {
+  return value.startsWith('أخرى - ') || value.startsWith('Other - ');
+};
+
+// Helper function to extract custom text from "Other" value
+export const extractCustomDisabilityText = (value: string): string => {
+  if (value.startsWith('أخرى - ')) {
+    return value.replace('أخرى - ', '');
+  }
+  if (value.startsWith('Other - ')) {
+    return value.replace('Other - ', '');
+  }
+  return value;
+};
 
 // Helper function to get disability type by value
 export const getDisabilityType = (value: string, language: 'ar' | 'en' = 'ar'): DisabilityType | undefined => {
+  // If it's a custom "Other" value, return the "Other" type
+  if (isCustomDisabilityType(value)) {
+    return DISABILITY_TYPES.find(type => type.value === 'أخرى');
+  }
   return DISABILITY_TYPES.find(type => type.value === value);
 };
 
@@ -82,8 +109,35 @@ export const getDisabilityType = (value: string, language: 'ar' | 'en' = 'ar'): 
 export const getDisabilityLabel = (value: string, language: 'ar' | 'en' = 'ar'): string => {
   const type = getDisabilityType(value, language);
   if (!type) return value;
+  
+  // If it's a custom "Other" value, show "Other: [custom text]"
+  if (isCustomDisabilityType(value)) {
+    const customText = extractCustomDisabilityText(value);
+    return language === 'ar' 
+      ? `${type.labelAr}: ${customText}`
+      : `${type.labelEn}: ${customText}`;
+  }
+  
   return language === 'ar' 
     ? `${type.labelAr}: ${type.descriptionAr}`
     : `${type.labelEn}: ${type.descriptionEn}`;
+};
+
+// Helper function to format disability type for display
+export const formatDisabilityTypeForDisplay = (value: string, language: 'ar' | 'en' = 'ar'): string => {
+  if (isCustomDisabilityType(value)) {
+    const customText = extractCustomDisabilityText(value);
+    const otherType = DISABILITY_TYPES.find(type => type.value === 'أخرى');
+    if (otherType) {
+      return language === 'ar' 
+        ? `${otherType.labelAr}: ${customText}`
+        : `${otherType.labelEn}: ${customText}`;
+    }
+    return customText;
+  }
+  
+  const type = getDisabilityType(value, language);
+  if (!type) return value;
+  return language === 'ar' ? type.labelAr : type.labelEn;
 };
 

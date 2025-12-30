@@ -15,7 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { getDisabilityType, DISABILITY_TYPES } from '@/constants/disabilityTypes';
+import { getDisabilityType, DISABILITY_TYPES, formatDisabilityTypeForDisplay } from '@/constants/disabilityTypes';
 import { SAUDI_CITIES, getCityLabel } from '@/constants/saudiCities';
 import { 
   Building2, 
@@ -828,10 +828,7 @@ export default function AdminDashboard() {
                           <TableCell>
                             {seeker.disabilityType ? (
                               <Badge variant="outline">
-                                {(() => {
-                                  const dt = getDisabilityType(seeker.disabilityType, currentDir === 'rtl' ? 'ar' : 'en');
-                                  return dt ? (currentDir === 'rtl' ? dt.labelAr : dt.labelEn) : seeker.disabilityType;
-                                })()}
+                                {formatDisabilityTypeForDisplay(seeker.disabilityType, currentDir === 'rtl' ? 'ar' : 'en')}
                               </Badge>
                             ) : '-'}
                           </TableCell>
@@ -1104,13 +1101,14 @@ export default function AdminDashboard() {
                               <div className="flex flex-col gap-2">
                                 {job.disabilityTypes?.map((type: string, idx: number) => {
                                   const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                                  const displayText = formatDisabilityTypeForDisplay(type, currentDir === 'rtl' ? 'ar' : 'en');
                                   return (
                                     <div key={idx} className="p-2 bg-muted/50 rounded border">
                                       <div className="flex flex-col gap-1">
                                         <span className="font-medium text-sm">
-                                          {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                          {displayText}
                                         </span>
-                                        {disabilityType && (
+                                        {disabilityType && !disabilityType.value.includes('أخرى') && (
                                           <span className="text-xs text-muted-foreground">
                                             {currentDir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
                                           </span>
@@ -1234,13 +1232,14 @@ export default function AdminDashboard() {
                                     <div className="flex flex-col gap-2">
                                       {job.disabilityTypes?.map((type: string, idx: number) => {
                                         const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                                        const displayText = formatDisabilityTypeForDisplay(type, currentDir === 'rtl' ? 'ar' : 'en');
                                         return (
                                           <div key={idx} className="p-2 bg-muted/50 rounded border">
                                             <div className="flex flex-col gap-1">
                                               <span className="font-medium text-sm">
-                                                {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                                {displayText}
                                               </span>
-                                              {disabilityType && (
+                                              {disabilityType && !disabilityType.value.includes('أخرى') && (
                                                 <span className="text-xs text-muted-foreground">
                                                   {currentDir === 'rtl' ? disabilityType.descriptionAr : disabilityType.descriptionEn}
                                                 </span>
@@ -1336,7 +1335,7 @@ export default function AdminDashboard() {
                               <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                 <span>{app.applicantPhone}</span>
                                 <span>•</span>
-                                <span>{app.applicantDisabilityType}</span>
+                                <span>{formatDisabilityTypeForDisplay(app.applicantDisabilityType, currentDir === 'rtl' ? 'ar' : 'en')}</span>
                               </div>
                             </div>
                             <Badge variant={

@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { DISABILITY_TYPES, getDisabilityType } from '@/constants/disabilityTypes';
+import { DISABILITY_TYPES, getDisabilityType, isCustomDisabilityType, extractCustomDisabilityText, formatDisabilityTypeForDisplay } from '@/constants/disabilityTypes';
 import { 
   Briefcase, 
   FileText, 
@@ -61,16 +61,26 @@ export default function UserDashboard() {
     email: user?.email || '',
     disabilityType: user?.disabilityType || '',
   });
+  const [customDisabilityText, setCustomDisabilityText] = useState('');
+  
+  const isOtherSelected = profileData.disabilityType === 'أخرى' || isCustomDisabilityType(profileData.disabilityType);
 
   useEffect(() => {
     loadData();
     if (user) {
+      const disabilityType = user.disabilityType || '';
       setProfileData({
         name: user.name || '',
         phone: user.phone || '',
         email: user.email || '',
-        disabilityType: user.disabilityType || '',
+        disabilityType: disabilityType,
       });
+      // If it's a custom disability type, extract the custom text
+      if (isCustomDisabilityType(disabilityType)) {
+        setCustomDisabilityText(extractCustomDisabilityText(disabilityType));
+      } else {
+        setCustomDisabilityText('');
+      }
     }
   }, [user]);
 
@@ -140,6 +150,16 @@ export default function UserDashboard() {
 
   const handleUpdateProfile = async () => {
     try {
+      // If "Other" is selected, require custom text
+      if (isOtherSelected && !customDisabilityText.trim()) {
+        toast({
+          title: t('error'),
+          description: currentDir === 'rtl' ? 'يرجى تحديد نوع الإعاقة' : 'Please specify the disability type',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       let cvUrl = user?.cvUrl;
       
       // If new CV file is selected, upload it first
@@ -149,9 +169,15 @@ export default function UserDashboard() {
         cvUrl = uploadResult.url;
       }
 
+      // Format disability type: if "Other" is selected, combine with custom text
+      const finalDisabilityType = isOtherSelected && customDisabilityText.trim()
+        ? `أخرى - ${customDisabilityText.trim()}`
+        : profileData.disabilityType;
+
       // Update profile
       await api.updateProfile({
         ...profileData,
+        disabilityType: finalDisabilityType,
         cvUrl: cvUrl,
       });
 
@@ -369,10 +395,10 @@ export default function UserDashboard() {
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {job.disabilityTypes.map((type: string, idx: number) => {
-                                const disabilityType = getDisabilityType(type, currentDir === 'rtl' ? 'ar' : 'en');
+                                const displayText = formatDisabilityTypeForDisplay(type, currentDir === 'rtl' ? 'ar' : 'en');
                                 return (
                                   <Badge key={idx} variant="outline" className="text-xs bg-primary/5 border-primary/20 text-primary">
-                                    {disabilityType ? (currentDir === 'rtl' ? disabilityType.labelAr : disabilityType.labelEn) : type}
+                                    {displayText}
                                   </Badge>
                                 );
                               })}
@@ -540,11 +566,31 @@ export default function UserDashboard() {
                           <div className="flex flex-col gap-2">
                             <Label className="text-sm font-medium">{t('disabilityType')}</Label>
                             <Select
-                              value={profileData.disabilityType}
-                              onValueChange={(value) => setProfileData({ ...profileData, disabilityType: value })}
+                              value={isCustomDisabilityType(profileData.disabilityType) ? 'أخرى' : profileData.disabilityType}
+                              onValueChange={(value) => {
+                                if (value === 'أخرى') {
+                                  setProfileData({ ...profileData, disabilityType: 'أخرى' });
+                                  // If there's existing custom text, extract it
+                                  if (isCustomDisabilityType(profileData.disabilityType)) {
+                                    setCustomDisabilityText(extractCustomDisabilityText(profileData.disabilityType));
+                                  }
+                                } else {
+                                  setProfileData({ ...profileData, disabilityType: value });
+                                  setCustomDisabilityText('');
+                                }
+                              }}
                             >
                               <SelectTrigger className="h-12">
-                                <SelectValue placeholder={t('selectDisabilityType')} />
+                                <SelectValue placeholder={t('selectDisabilityType')}>
+                                  {profileData.disabilityType && (() => {
+                                    if (isCustomDisabilityType(profileData.disabilityType)) {
+                                      const otherType = DISABILITY_TYPES.find(t => t.value === 'أخرى');
+                                      return otherType ? (currentDir === 'rtl' ? otherType.labelAr : otherType.labelEn) : 'أخرى';
+                                    }
+                                    const selected = DISABILITY_TYPES.find(t => t.value === profileData.disabilityType);
+                                    return selected ? (currentDir === 'rtl' ? selected.labelAr : selected.labelEn) : profileData.disabilityType;
+                                  })()}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 {DISABILITY_TYPES.map((type) => (
@@ -559,6 +605,22 @@ export default function UserDashboard() {
                                 ))}
                               </SelectContent>
                             </Select>
+                            {isOtherSelected && (
+                              <div className="flex flex-col gap-2 mt-2">
+                                <Label htmlFor="customDisabilityText" className="text-sm">
+                                  {currentDir === 'rtl' ? 'يرجى تحديد نوع الإعاقة' : 'Please specify the disability type'} <span className="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                  id="customDisabilityText"
+                                  type="text"
+                                  value={customDisabilityText}
+                                  onChange={(e) => setCustomDisabilityText(e.target.value)}
+                                  placeholder={currentDir === 'rtl' ? 'اكتب نوع الإعاقة' : 'Enter disability type'}
+                                  required={isOtherSelected}
+                                  className="h-12"
+                                />
+                              </div>
+                            )}
                           </div>
                           <div className="flex flex-col gap-2">
                             <Label className="text-sm font-medium flex items-center gap-2">
